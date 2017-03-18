@@ -69,7 +69,6 @@ void ofApp::draw() {
   contourFinder2.draw();
   ofPopMatrix();
 
-  ofSetColor(0, 0, 0, 25);
   for (int i = 0; i< boids.getBoids()->size(); i++) {
     Boid2d  *b = boids.flock.totalBoid.at(i);
     ofDrawRectangle(b->position.x, b->position.y, 5,5);
