@@ -10,41 +10,44 @@
 
 class BoidsThread: public ofThread {
 public:
-    Flock2d flock;
-    BoidsThread(){
-        flock.setBounds(0, 0, ofGetWindowWidth()  , ofGetWindowHeight());
-        flock.setBoundmode(1);
-    };
+  Flock2d flock;
+  BoidsThread() {
+    flock.setBounds(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+    flock.setBoundmode(1);
+  };
 
-    void BoidsSetup(){
-        int unit= 30;
-        flock.isVectorField=false;
-        for (int i = (ofGetWidth()/unit); i < ofGetWidth(); i = i + ofGetWidth()/unit) {
-            for(int j = (ofGetHeight()/unit);  j < ofGetHeight(); j = j+ ofGetHeight()/unit){
-                flock.addBoid(ofVec2f(i, j),7, 10, 5, 50, 6, 60, 2, 2);
-            }
-        }
-        cout << flock.totalBoid.size();
-    };
+  void BoidsSetup() {
+    int unit= 25;
+    flock.isVectorField=false;
 
-    vector<Boid2d*>* getBoids(){
-        return &flock.totalBoid;
-    };
+    for (int i = 25; i < ofGetWindowWidth(); i += unit) {
+      for(int j = 25; j < ofGetWindowHeight(); j += unit) {
+	flock.addBoid(ofVec2f(i, j),7, 10, 5, 50, 6, 60, 2, 2);
+      }
+    }
+  };
 
-    void setBoidsActif(vector<Boid2d*> _boidsActif){
-        boidsActif = _boidsActif;
-    };
+  vector<Boid2d*>& getBoids(){
+    return flock.totalBoid;
+  };
 
-private:
-    vector<Boid2d *> boidsActif;
-    vector<vector<ofVec2f>> *vect;
+  void setBoidsActif(vector<Boid2d*> _boidsActif){
+    boidsActif = _boidsActif;
+  };
 
+public:
+  vector<Boid2d *> boidsActif;
+  vector<vector<ofVec2f>> *vect;
 
-    void threadedFunction(){
-        //boidsActif=flock.totalBoid;
-        //flock.update(&boidsActif, &boidsActif, vect);
-        flock.update(&flock.totalBoid, &flock.totalBoid, vect);
-    };
+  ofThreadChannel<std::vector<Boid2d*>> boidsUpdate;
+
+  void threadedFunction() {
+    //boidsActif=flock.totalBoid;
+    //flock.update(&boidsActif, &boidsActif, vect);
+    std::vector<Boid2d*> boids;
+    boidsUpdate.tryReceive(boids);
+    flock.update(&boids, &boids, vect); // il faut faire ça
+  };
 };
 
 
@@ -87,4 +90,12 @@ public:
   ofxCv::ContourFinder contourFinder2;
 
   ofImage contourImage;
+
+  //
+  std::vector<Boid2d*> boidUpdate;
+
+  int posX = 0;
+  int posY = 0;
+
+  ofPolyline poly;
 };
