@@ -14,7 +14,7 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
   ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()));
-    //boids.boidsUpdate.send(boidUpdate);
+    boids.boidsUpdate.send(boidUpdate);
     //boids.boidsUpdate.send(boids.getBoids());
     //boids.field.send(vectorField.gradientVectorField);
     
@@ -67,19 +67,19 @@ void ofApp::update() {
     if (contourFinder.getContours().size()>0) {
         ofPolyline popo = contourFinder.getPolyline(0);
         //popo.close();
-        int juda =0;
         for (int x = 0; x<(ofGetWindowWidth()/27); x++) {
             for (int y = 0; y<(ofGetWindowHeight()/27); y++) {
-                Boid2d* b = boids.getBoids()[x*ofGetWindowHeight()/25 + y];
+                Boid2d* b = boids.getBoids()[x *23 + y];
                 //cout << b->positionInitiale.x << "   " << b->positionInitiale.y << endl;
                 if (popo.inside(b->positionInitiale.x,b->positionInitiale.y)){
                     b->active = true;
-                    juda++;
+                    boidUpdate.push_back(b);
+                    
                 }
-                //else  b->active = false;
+                else  b->active = false;
             }
         }
-        cout << juda << endl;
+    
     }
 }
 
@@ -168,3 +168,5 @@ void ofApp::gotMessage(ofMessage msg){
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
 }
+
+

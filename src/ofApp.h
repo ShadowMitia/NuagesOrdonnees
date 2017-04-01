@@ -49,11 +49,10 @@ public:
 
   void threadedFunction() {
     std::vector<Boid2d*> boids;
-    //boidsUpdate.receive(boids);
+    boidsUpdate.receive(boids);
     //std::vector<std::vector<ofVec2f>> f;
     //field.receive(f);
-    //flock.update(&boids, &boids, vect);
-      flock.update(&flock.totalBoid, &flock.totalBoid,vect);
+    flock.update(&boids, &boids, vect);
   };
 };
 
