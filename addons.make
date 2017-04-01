@@ -1,4 +1,4 @@
+ofxBoids
 ofxCv
 ofxGui
-ofxBoids
 ofxOpenCv

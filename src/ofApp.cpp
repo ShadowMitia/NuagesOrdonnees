@@ -17,7 +17,6 @@ void ofApp::update() {
   if (boids.isMainThread() && !boids.isThreadRunning()) {
     boids.startThread();
   }
-
   if (vectorField.isMainThread() && !vectorField.isThreadRunning()) {
     vectorField.startThread();
   }
@@ -25,7 +24,6 @@ void ofApp::update() {
   videoStream.update();
 
   if (videoStream.isFrameNew()) {
-
     contourFinder.setMinAreaRadius(60);
     contourFinder.setMaxAreaRadius(1000);
     /*contourFinder.setThreshold(40);
