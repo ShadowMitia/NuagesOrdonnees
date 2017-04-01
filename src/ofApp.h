@@ -76,7 +76,7 @@ public:
   // Camera stream
   ofVideoGrabber videoStream;
   // Background detection things
-  ofxCv::RunningBackground background;
+  
   ofImage thresholded;
   ofImage backgroundImage;
   // GUI stuff

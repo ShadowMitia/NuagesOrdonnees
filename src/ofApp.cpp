@@ -28,20 +28,16 @@ void ofApp::update() {
 
   videoStream.update();
   if(resetBackground) {
-    background.reset();
     resetBackground = false;
   }
 
   if(videoStream.isFrameNew()) {
-    background.setLearningTime(learningTime);
-    background.setThresholdValue(thresholdValue);
-    background.update(videoStream, thresholded);
+
     thresholded.update();
     contourFinder.setMinAreaRadius(60);
     contourFinder.setMaxAreaRadius(1000);
     contourFinder.setThreshold(thresholdValue);
     contourFinder.findContours(videoStream);
-    ofxCv::toOf(background.getBackground(), backgroundImage);
     backgroundImage.update();
     ofxCv::subtract(backgroundImage, videoStream, contourImage);
     contourImage.update();
