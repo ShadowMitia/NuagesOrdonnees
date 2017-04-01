@@ -8,8 +8,8 @@
 #include "ofxGui.h"
 #include "Flock2d.h"
 
-constexpr int cam_width = 640;
-constexpr int cam_height = 480;
+constexpr int cam_width = 600;
+constexpr int cam_height = 600;
 constexpr int image_width = cam_width / 2;
 constexpr int image_height = cam_height / 2;
 
@@ -25,9 +25,9 @@ public:
     int unit= 25;
     flock.isVectorField=false;
 
-    for (int i = 25; i < ofGetWindowWidth(); i += unit) {
-      for(int j = 25; j < ofGetWindowHeight(); j += unit) {
-	flock.addBoid(ofVec2f(i, j),7, 10, 5, 50, 6, 60, 2, 2);
+    for (int i = unit; i < ofGetWindowWidth(); i += unit) {
+      for(int j = unit; j < ofGetWindowHeight(); j += unit) {
+          flock.addBoid(ofVec2f(i, j),7, 10, 5, 50, 6, 60, 2, 2);
       }
     }
   };
@@ -48,13 +48,12 @@ public:
   ofThreadChannel<std::vector<std::vector<ofVec2f>>> field;
 
   void threadedFunction() {
-    //boidsActif=flock.totalBoid;
-    //flock.update(&boidsActif, &boidsActif, vect);
     std::vector<Boid2d*> boids;
-    boidsUpdate.receive(boids);
-    std::vector<std::vector<ofVec2f>> f;
+    //boidsUpdate.receive(boids);
+    //std::vector<std::vector<ofVec2f>> f;
     //field.receive(f);
-    flock.update(&boids, &boids, vect); // il faut faire ça
+    //flock.update(&boids, &boids, vect);
+      flock.update(&flock.totalBoid, &flock.totalBoid,vect);
   };
 };
 
@@ -63,30 +62,32 @@ class VectorFieldGenerator : public ofThread {
 public:
 
   void setup() {
-    pixelisation.allocate(640, 480, OF_IMAGE_COLOR);
+    pixelisation.allocate(600, 600, OF_IMAGE_COLOR);
     pixelisation.setUseTexture(false);
 
-    finalPixelisation.allocate(640 / unit, 480 / unit, OF_IMAGE_COLOR);
+    finalPixelisation.allocate(600 / unit, 600 / unit, OF_IMAGE_COLOR);
     finalPixelisation.setUseTexture(false);
 
-    gray.allocate(640 / unit, 480 / unit, OF_IMAGE_GRAYSCALE);
+    gray.allocate(600 / unit, 600 / unit, OF_IMAGE_GRAYSCALE);
     gray.setUseTexture(false);
 
-    sobelX.allocate(640 / unit, 480 / unit, OF_IMAGE_GRAYSCALE);
+    sobelX.allocate(600 / unit, 600 / unit, OF_IMAGE_GRAYSCALE);
     sobelX.setUseTexture(false);
 
-    sobelY.allocate(640 / unit, 480 / unit, OF_IMAGE_GRAYSCALE);
+    sobelY.allocate(600 / unit, 600 / unit, OF_IMAGE_GRAYSCALE);
     sobelY.setUseTexture(false);
 
-    gradientVectorField.resize(640 / unit);
+    gradientVectorField.resize(600 / unit);
     for (auto& v : gradientVectorField) {
-      v.resize(480 / unit);
+      v.resize(600 / unit);
     }
-    tmp.resize(480/unit);
+    tmp.resize(600/unit);
   }
 
   void threadedFunction() {
-    pix.receive(pixelisation);
+      cv::Mat m;
+    pix.receive(m);
+      ofxCv::toOf(m, pixelisation);
     pixelisation.mirror(false, true);
 
     for (int i = 0; i < pixelisation.getWidth(); i+= unit) {
@@ -153,7 +154,7 @@ public:
   }
 
 
-  ofThreadChannel<ofPixels> pix;
+    ofThreadChannel<cv::Mat> pix;
   ofThreadChannel<std::vector<std::vector<ofVec2f>>> vecField;
 
 private:
@@ -210,12 +211,9 @@ public:
 
   // Contour Finder
   ofxCv::ContourFinder contourFinder;
-  // Contour Finder
-  ofxCv::ContourFinder contourFinder2;
 
   ofImage contourImage;
 
-  //
   std::vector<Boid2d*> boidUpdate;
 
   int posX = 0;
@@ -224,4 +222,6 @@ public:
   ofPolyline poly;
 
   ofImage t;
+    ofImage imageTest;
+    
 };

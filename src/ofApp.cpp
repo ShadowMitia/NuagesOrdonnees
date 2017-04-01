@@ -2,7 +2,8 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-  videoStream.setup(640, 480);
+    //cam
+    imageTest.load("grayGrad8.jpg");
 
   boids.BoidsSetup();
   vectorField.setup();
@@ -13,32 +14,27 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update() {
   ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()));
-
+    //boids.boidsUpdate.send(boidUpdate);
+    //boids.boidsUpdate.send(boids.getBoids());
+    //boids.field.send(vectorField.gradientVectorField);
+    
   if (boids.isMainThread() && !boids.isThreadRunning()) {
     boids.startThread();
   }
-  if (vectorField.isMainThread() && !vectorField.isThreadRunning()) {
+  if (vectorField.isMainThread() && !vectorField.isThreadRunning() && contourFinder.getContours().size()>0) {
+    vectorField.pix.send(contourFinder.getContourThreshold());
     vectorField.startThread();
   }
-
-  videoStream.update();
-
-  if (videoStream.isFrameNew()) {
+    
     contourFinder.setMinAreaRadius(60);
     contourFinder.setMaxAreaRadius(1000);
-    /*contourFinder.setThreshold(40);
-      contourFinder.setAutoThreshold(false);*/
-    contourFinder.findContours(videoStream);
+    contourFinder.setThreshold(40);
+    contourFinder.findContours(imageTest);
 
-    vectorField.pix.send(videoStream.getPixels());
-
-    contourFinder2.setMinAreaRadius(60);
-    contourFinder2.setMaxAreaRadius(1000);
-    contourFinder2.setThreshold(40);
-    contourFinder2.findContours(contourImage);
-  }
+    
 
   poly.clear();
+//========================================= coeur ===============================
   float i = 0;
   while (i < TWO_PI) { // make a heart
     float r = (2-2*sin(i) + sin(i)*sqrt(abs(cos(i))) / (sin(i)+1.4)) * - 20;
@@ -48,30 +44,50 @@ void ofApp::update() {
     i+=0.005*HALF_PI*0.5;
   }
   poly.close(); // close the shape
-
+//========================================= coeur ===============================
+// borne du rectangle
   boidUpdate.clear();
-  auto minX = std::max(0, ofGetMouseY()/25);
+/*  auto minX = std::max(0, ofGetMouseY()/25);
   auto minY = std::max(0, ofGetMouseX()/25);
-  auto maxX = std::min((ofGetMouseY()+200)/25, (ofGetWindowHeight())/25);
-  auto maxY = std::min((ofGetMouseX()+200)/25, (ofGetWindowWidth())/25);
-  for (auto i = minX; i < maxX; i++) {
-    for (auto j = minY; j < maxY; j++) {
-      auto width = ofGetWindowHeight() / 25;
-      auto& b = boids.getBoids()[j*width+i];
+  auto maxX = std::min((ofGetMouseY()+200)/25, ((ofGetWindowHeight())/25)-1);
+  auto maxY = std::min((ofGetMouseX()+200)/25, ((ofGetWindowWidth())/25)-1);
+//
+  for (int i = minX; i < maxX; i++) {
+    for (int j = minY; j < maxY; j++) {
+      int width = ofGetWindowHeight() / 25;
+      Boid2d* b = boids.getBoids()[j*width+i];
       boidUpdate.push_back(b);
       if (poly.inside(b->positionInitiale)) {
-	  b->active = true;
+          b->active = true;
       }	else {
-	b->active = false;
+          b->active = false;
       }
     }
-  }
-  boids.boidsUpdate.send(boidUpdate);
-  boids.field.send(vectorField.gradientVectorField);
+  }*/
+    if (contourFinder.getContours().size()>0) {
+        ofPolyline popo = contourFinder.getPolyline(0);
+        //popo.close();
+        int juda =0;
+        for (int x = 0; x<(ofGetWindowWidth()/27); x++) {
+            for (int y = 0; y<(ofGetWindowHeight()/27); y++) {
+                Boid2d* b = boids.getBoids()[x*ofGetWindowHeight()/25 + y];
+                //cout << b->positionInitiale.x << "   " << b->positionInitiale.y << endl;
+                if (popo.inside(b->positionInitiale.x,b->positionInitiale.y)){
+                    b->active = true;
+                    juda++;
+                }
+                //else  b->active = false;
+            }
+        }
+        cout << juda << endl;
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+    //t.setImageType(OF_IMAGE_GRAYSCALE);
+    //ofxCv::toOf(contourFinder.getContourThreshold(), t);
+    //t.draw(0, 0);
   ofPushMatrix();
   ofNoFill();
   ofSetColor(ofColor::blue);
@@ -82,6 +98,7 @@ void ofApp::draw() {
 
   ofPushMatrix();
   ofSetColor(ofColor::red);
+    contourFinder.getPolyline(0).draw();
   for (int i = 0; i< boids.getBoids().size(); i++) {
     Boid2d* b = boids.flock.totalBoid.at(i);
     ofDrawRectangle(b->position.x, b->position.y, 5,5);
@@ -93,9 +110,8 @@ void ofApp::draw() {
   ofSetColor(ofColor::white);
 
 
-  t.setImageType(OF_IMAGE_GRAYSCALE);
-  ofxCv::toOf(contourFinder.getContourThreshold(), t);
-  t.draw(0, 0);
+
+  
 }
 
 //--------------------------------------------------------------
