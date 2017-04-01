@@ -15,8 +15,7 @@ void ofApp::setup() {
 void ofApp::update() {
   ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()));
     boids.boidsUpdate.send(boidUpdate);
-    //boids.boidsUpdate.send(boids.getBoids());
-    //boids.field.send(vectorField.gradientVectorField);
+    boids.field.send(vectorField.gradientVectorField);
     
   if (boids.isMainThread() && !boids.isThreadRunning()) {
     boids.startThread();
@@ -67,9 +66,9 @@ void ofApp::update() {
     if (contourFinder.getContours().size()>0) {
         ofPolyline popo = contourFinder.getPolyline(0);
         //popo.close();
-        for (int x = 0; x<(ofGetWindowWidth()/27); x++) {
-            for (int y = 0; y<(ofGetWindowHeight()/27); y++) {
-                Boid2d* b = boids.getBoids()[x *23 + y];
+        for (int x = 0; x<(ofGetWindowWidth()/20); x++) {
+            for (int y = 0; y<(ofGetWindowHeight()/20); y++) {
+                Boid2d* b = boids.getBoids()[x * ofGetWindowHeight()/20 + y];
                 //cout << b->positionInitiale.x << "   " << b->positionInitiale.y << endl;
                 if (popo.inside(b->positionInitiale.x,b->positionInitiale.y)){
                     b->active = true;
@@ -79,7 +78,6 @@ void ofApp::update() {
                 else  b->active = false;
             }
         }
-    
     }
 }
 
@@ -88,11 +86,12 @@ void ofApp::draw() {
     //t.setImageType(OF_IMAGE_GRAYSCALE);
     //ofxCv::toOf(contourFinder.getContourThreshold(), t);
     //t.draw(0, 0);
+  
   ofPushMatrix();
   ofNoFill();
   ofSetColor(ofColor::blue);
-  ofDrawRectangle(ofGetMouseX(), ofGetMouseY(), 200, 200);
-  poly.draw();
+  //ofDrawRectangle(ofGetMouseX(), ofGetMouseY(), 200, 200);
+  //poly.draw();
   ofFill();
   ofPopMatrix();
 
@@ -101,14 +100,14 @@ void ofApp::draw() {
     contourFinder.getPolyline(0).draw();
   for (int i = 0; i< boids.getBoids().size(); i++) {
     Boid2d* b = boids.flock.totalBoid.at(i);
-    ofDrawRectangle(b->position.x, b->position.y, 5,5);
+    ofDrawRectangle(b->position.x, b->position.y, 3,3);
     float lm = 10.f;
     ofDrawLine(b->position.x, b->position.y, b->position.x + b->velocite.x*lm, b->position.y + b->velocite.y*lm);
   }
 
   ofPopMatrix();
   ofSetColor(ofColor::white);
-
+  vectorField.finalPixelisation.draw(0, 0);
 
 
   
