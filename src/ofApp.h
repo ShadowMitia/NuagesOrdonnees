@@ -23,7 +23,7 @@ public:
 
   void BoidsSetup() {
     int unit= 20;
-    flock.isVectorField=true;
+    flock.isVectorField=false;
 
     for (int i = unit/2; i < ofGetWindowWidth(); i += unit) {
       for(int j = unit/2; j < ofGetWindowHeight(); j += unit) {
@@ -151,8 +151,8 @@ private:
             //std::vector<ofVec2f> vectorJ;
             //tmp.clear();
             for (unsigned int j=0; j<finalPixelisation.getHeight(); j++) {
-                float x = 100*inter_x.at<int>(j, i)/(float)1020;
-                float y = 100*inter_y.at<int>(j, i)/(float)1020;
+                float x = inter_x.at<int>(j, i)/(float)1020;
+                float y = inter_y.at<int>(j, i)/(float)1020;
                 gradientVectorField[i][j] = ofVec2f(x,y);
                 //tmp.push_back(ofVec2f(x, y));
             }
@@ -227,5 +227,7 @@ public:
 
   ofImage t;
     ofImage imageTest;
+    bool debug;
+    int modeDebug;
     
 };

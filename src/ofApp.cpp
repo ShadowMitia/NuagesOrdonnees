@@ -2,6 +2,8 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
+    debug = true;
+    modeDebug = 1;
     //cam
     imageTest.load("grayGrad8.jpg");
 
@@ -9,11 +11,18 @@ void ofApp::setup() {
   vectorField.setup();
 
   ofBackground(0, 0, 0);
+    
+    contourFinder.setMinAreaRadius(60);
+    contourFinder.setMaxAreaRadius(1000);
+    contourFinder.setThreshold(40);
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
-  ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()));
+    if (debug) ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate())+ "  Mode debug: " + std::to_string(modeDebug));
+    else ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()));
+
+    
     boids.boidsUpdate.send(boidUpdate);
     boids.field.send(vectorField.gradientVectorField);
     
@@ -25,9 +34,7 @@ void ofApp::update() {
     vectorField.startThread();
   }
     
-    contourFinder.setMinAreaRadius(60);
-    contourFinder.setMaxAreaRadius(1000);
-    contourFinder.setThreshold(40);
+
     contourFinder.findContours(imageTest);
 
     
@@ -83,31 +90,43 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-    //t.setImageType(OF_IMAGE_GRAYSCALE);
-    //ofxCv::toOf(contourFinder.getContourThreshold(), t);
-    //t.draw(0, 0);
-  
-  ofPushMatrix();
-  ofNoFill();
-  ofSetColor(ofColor::blue);
-  //ofDrawRectangle(ofGetMouseX(), ofGetMouseY(), 200, 200);
-  //poly.draw();
-  ofFill();
-  ofPopMatrix();
+    
+    if (debug) {
+        switch (modeDebug) {
+            case 1:
+                ofSetColor(ofColor::red);
+                for (int i = 0; i< boids.getBoids().size(); i++) {
+                    Boid2d* b = boids.flock.totalBoid.at(i);
+                    ofDrawRectangle(b->position.x, b->position.y, 3,3);
+                    float lm = 10.f;
+                    ofDrawLine(b->position.x, b->position.y, b->position.x + b->velocite.x*lm, b->position.y + b->velocite.y*lm);
+                }
+                ofSetColor(ofColor::white);
+                break;
+            case 2:
+                imageTest.draw(0, 0);
+            case 3:{
+                //vectorField.finalPixelisation.draw(0, 0);
+                ofImage image;
+                image.allocate(600, 600, OF_IMAGE_COLOR);
+                image.setUseTexture(false);
+                ofxCv::toOf(contourFinder.getContourThreshold(), image);
+                image.draw(0, 0);
+                break;}
+            case 4:
+                contourFinder.getPolyline(0).draw();
+                break;
+            
 
-  ofPushMatrix();
-  ofSetColor(ofColor::red);
-    contourFinder.getPolyline(0).draw();
-  for (int i = 0; i< boids.getBoids().size(); i++) {
-    Boid2d* b = boids.flock.totalBoid.at(i);
-    ofDrawRectangle(b->position.x, b->position.y, 3,3);
-    float lm = 10.f;
-    ofDrawLine(b->position.x, b->position.y, b->position.x + b->velocite.x*lm, b->position.y + b->velocite.y*lm);
-  }
-
-  ofPopMatrix();
-  ofSetColor(ofColor::white);
-  vectorField.finalPixelisation.draw(0, 0);
+        }
+        //t.setImageType(OF_IMAGE_GRAYSCALE);
+        //ofxCv::toOf(contourFinder.getContourThreshold(), t);
+        //t.draw(0, 0);
+        
+        
+        
+    }
+   
 
 
   
@@ -115,7 +134,23 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    if (key == ' ') {
+        debug = !debug;
+    }
+    
+    if (debug) {
+        switch (key) {
+            case '1':
+                modeDebug = 1;
+                break;
+            case '2':
+                modeDebug = 2;
+                break;
+            case '3':
+                modeDebug = 3;
+                break;
+        }
+    }
 }
 
 //--------------------------------------------------------------
