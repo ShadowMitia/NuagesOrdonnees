@@ -4,18 +4,10 @@
 void ofApp::setup() {
   videoStream.setup(640, 480);
 
-  background.setIgnoreForeground(true);
-
-  gui.setup();
-  gui.add(resetBackground.set("Reset Background", false));
-  gui.add(learningTime.set("Learning Time", 30, 0, 30));
-  gui.add(thresholdValue.set("Threshold Value", 10, 0, 255));
-
   boids.BoidsSetup();
+  vectorField.setup();
 
   ofBackground(0, 0, 0);
-
-
 }
 
 //--------------------------------------------------------------
@@ -26,32 +18,27 @@ void ofApp::update() {
     boids.startThread();
   }
 
-  videoStream.update();
-  if(resetBackground) {
-    background.reset();
-    resetBackground = false;
+  if (vectorField.isMainThread() && !vectorField.isThreadRunning()) {
+    vectorField.startThread();
   }
 
-  if(videoStream.isFrameNew()) {
-    background.setLearningTime(learningTime);
-    background.setThresholdValue(thresholdValue);
-    background.update(videoStream, thresholded);
-    thresholded.update();
+  videoStream.update();
+
+  if (videoStream.isFrameNew()) {
+
     contourFinder.setMinAreaRadius(60);
     contourFinder.setMaxAreaRadius(1000);
-    contourFinder.setThreshold(thresholdValue);
+    /*contourFinder.setThreshold(40);
+      contourFinder.setAutoThreshold(false);*/
     contourFinder.findContours(videoStream);
-    ofxCv::toOf(background.getBackground(), backgroundImage);
-    backgroundImage.update();
-    ofxCv::subtract(backgroundImage, videoStream, contourImage);
-    contourImage.update();
-    contourImage.setImageType(OF_IMAGE_GRAYSCALE);
+
+    vectorField.pix.send(videoStream.getPixels());
+
     contourFinder2.setMinAreaRadius(60);
     contourFinder2.setMaxAreaRadius(1000);
     contourFinder2.setThreshold(40);
     contourFinder2.findContours(contourImage);
   }
-
 
   poly.clear();
   float i = 0;
@@ -82,43 +69,23 @@ void ofApp::update() {
     }
   }
   boids.boidsUpdate.send(boidUpdate);
+  boids.field.send(vectorField.gradientVectorField);
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-
-  /*
-  videoStream.draw(0, 0);
-  if(thresholded.isAllocated()) {
-    thresholded.draw(640, 0);
-  }
-  contourFinder.draw();
-  ofPushMatrix();
-  ofTranslate(640, 0);
-  contourFinder.draw();
-  ofPopMatrix();
-
-
-  backgroundImage.draw(0, 480);
-  contourImage.draw(640, 480);
-  ofPushMatrix();
-  ofTranslate(640, 480);
-  contourFinder2.draw();
-  ofPopMatrix();
-  */
   ofPushMatrix();
   ofNoFill();
   ofSetColor(ofColor::blue);
   ofDrawRectangle(ofGetMouseX(), ofGetMouseY(), 200, 200);
   poly.draw();
-  //ofDrawRectangle(0, 0, 200, 200);
   ofFill();
   ofPopMatrix();
 
   ofPushMatrix();
   ofSetColor(ofColor::red);
   for (int i = 0; i< boids.getBoids().size(); i++) {
-    Boid2d  *b = boids.flock.totalBoid.at(i);
+    Boid2d* b = boids.flock.totalBoid.at(i);
     ofDrawRectangle(b->position.x, b->position.y, 5,5);
     float lm = 10.f;
     ofDrawLine(b->position.x, b->position.y, b->position.x + b->velocite.x*lm, b->position.y + b->velocite.y*lm);
@@ -126,7 +93,11 @@ void ofApp::draw() {
 
   ofPopMatrix();
   ofSetColor(ofColor::white);
-  //gui.draw();
+
+
+  t.setImageType(OF_IMAGE_GRAYSCALE);
+  ofxCv::toOf(contourFinder.getContourThreshold(), t);
+  t.draw(0, 0);
 }
 
 //--------------------------------------------------------------
