@@ -105,30 +105,27 @@ void ofApp::draw() {
                 break;
             case 2:
                 imageTest.draw(0, 0);
+                break;
             case 3:{
                 //vectorField.finalPixelisation.draw(0, 0);
                 ofImage image;
                 image.allocate(600, 600, OF_IMAGE_COLOR);
                 image.setUseTexture(false);
                 ofxCv::toOf(contourFinder.getContourThreshold(), image);
+                image.update();
                 image.draw(0, 0);
-                break;}
-            case 4:
-                contourFinder.getPolyline(0).draw();
+                }
                 break;
-            
-
+            case 4:
+                ofSetColor(ofColor::azure);
+                contourFinder.getPolyline(0).draw();
+                ofSetColor(ofColor::white);
+                break;
         }
         //t.setImageType(OF_IMAGE_GRAYSCALE);
         //ofxCv::toOf(contourFinder.getContourThreshold(), t);
         //t.draw(0, 0);
-        
-        
-        
     }
-   
-
-
   
 }
 
@@ -148,6 +145,9 @@ void ofApp::keyPressed(int key){
                 break;
             case '3':
                 modeDebug = 3;
+                break;
+            case '4':
+                modeDebug = 4;
                 break;
         }
     }
