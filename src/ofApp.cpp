@@ -30,8 +30,8 @@ void ofApp::update() {
     boids.startThread();
   }
   if (vectorField.isMainThread() && !vectorField.isThreadRunning() && contourFinder.getContours().size()>0) {
-    vectorField.pix.send(contourFinder.getContourThreshold());
-    vectorField.startThread();
+    //vectorField.pix.send(contourFinder.getContourThreshold());
+    //vectorField.startThread();
   }
     
 
@@ -108,10 +108,10 @@ void ofApp::draw() {
                 break;
             case 3:{
                 //vectorField.finalPixelisation.draw(0, 0);
-                ofImage image;
-                image.allocate(600, 600, OF_IMAGE_COLOR);
-                image.setUseTexture(false);
-                ofxCv::toOf(contourFinder.getContourThreshold(), image);
+                ofImage image = imageTest;
+                cv::Mat imageMat = ofxCv::toCv(image);
+                cv::Mat imageThreshold;
+                ofxCv::threshold(imageMat, 40, false);
                 image.update();
                 image.draw(0, 0);
                 }
