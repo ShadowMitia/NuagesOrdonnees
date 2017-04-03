@@ -6,133 +6,103 @@
 //
 //
 #pragma once
+#include "ofxCv.h"
+#include "ofxOpenCv.h"
+#include "Constant.h"
 
 class VectorFieldGenerator : public ofThread {
     
 public:
-    ofImage finalPixelisation;
-    
-    void setup() {
-        pixelisation.allocate(600, 600, OF_IMAGE_COLOR);
-        pixelisation.setUseTexture(false);
-        
-        finalPixelisation.allocate(600 / unit, 600 / unit, OF_IMAGE_GRAYSCALE);
-        finalPixelisation.setUseTexture(false);
-        
-        gray.allocate(600 / unit, 600 / unit, OF_IMAGE_GRAYSCALE);
-        gray.setUseTexture(false);
-        
-        sobelX.allocate(600 / unit, 600 / unit, OF_IMAGE_GRAYSCALE);
-        sobelX.setUseTexture(false);
-        
-        sobelY.allocate(600 / unit, 600 / unit, OF_IMAGE_GRAYSCALE);
-        sobelY.setUseTexture(false);
-        
-        /*gradientVectorField.resize(600 / unit);
-         for (auto& v : gradientVectorField) {
-         v.resize(600 / unit);
-         }*/
-        
-        gradientVectorField.resize(600/unit,vector<ofVec2f>(600/unit));
-        
-        tmp.resize(600/unit);
-    }
-    
-    
-    
+    std::vector<std::vector<ofVec2f>> *gradientVectorField_Ptr;
     
     ofThreadChannel<cv::Mat> pix;
-    ofThreadChannel<std::vector<std::vector<ofVec2f>>> vecField;
-    
+    void setup() {
+        ofxCv::allocate(inputMat, win_width, win_height, CV_8UC1);
+        //ofxCv::allocate(pixelisationMat,win_width/divGrad_width,win_height/divGrad_height,CV_8UC1);
+        
+        pixelisationImage.allocate(win_width/divGrad_width, win_height/divGrad_height, OF_IMAGE_GRAYSCALE);
+        pixelisationImage.setUseTexture(false);
+        pixelisationMat = ofxCv::toCv(pixelisationImage);
+        gradientVectorField.clear();
+        gradientVectorField.resize(win_width/divGrad_width,vector<ofVec2f>(win_height/divGrad_height));
+        while (gradientVectorField[0].size() == 0 ) {
+            cout << "Bonne Question";
+            gradientVectorField.clear();
+            gradientVectorField.resize(win_width/divGrad_width,vector<ofVec2f>(win_height/divGrad_height));
+        }
+        gradientVectorField_Ptr = &gradientVectorField;
+        /*
+        gradientVectorField.resize(win_width/divGrad_width);
+         for (auto& v : gradientVectorField) {
+         v.resize(win_height/divGrad_height);
+         }
+         */
+
+        ofxCv::imitate(inter_x, pixelisationMat, CV_32F);
+        ofxCv::imitate(inter_y, pixelisationMat, CV_32F);
+        cout << "inputMat cols:" << inputMat.cols << " rows:" << inputMat.rows << endl;
+        cout << "pixelisation cols:" << pixelisationMat.cols << " rows:" << pixelisationMat.rows << endl;
+
+    }
+    cv::Mat getPixelisationMat(){
+        return pixelisationMat;
+    }
+    cv::Mat getInputMat(){
+        return inputMat;
+    }
+    cv::Mat getInter_x(){
+        return inter_x;
+    }
+    cv::Mat getInter_y(){
+        return inter_y;
+    }
 private:
+    std::vector<std::vector<ofVec2f>> gradientVectorField;
+    ofMutex dataMutex;
+    cv::Mat inputMat,pixelisationMat;
+    cv::Mat inter_x,inter_y;
+    ofImage pixelisationImage;
+    
     void threadedFunction() {
         cv::Mat m;
         pix.receive(m);
-        ofxCv::toOf(m, pixelisation);
-        pixelisation.mirror(false, true);
+        ofxCv::copy(m, inputMat);
+        //ofxCv::copy(inputMat,pixelisationMat);
+        dataMutex.lock();
+        pixelisation(&inputMat, &pixelisationMat);
         
-        for (int i = 0; i < pixelisation.getWidth(); i+= unit) {
-            for (int j = 0; j < pixelisation.getHeight(); j+= unit) {
-                unsigned int r = 0;
-                unsigned int g = 0;
-                unsigned int b = 0;
-                int width = unit;
-                int height = unit;
-                for (int k = 0; k < width; k++) {
-                    for (int l = 0; l < height; l++) {
-                        ofColor col = pixelisation.getColor(i+k, j+l);
-                        r += col.r;
-                        g += col.g;
-                        b += col.b;
-                    }
-                }
-                r /= (width * height);
-                g /= (width * height);
-                b /= (width * height);
-                finalPixelisation.setColor(i/unit, j/unit, ofColor(r, g, b));
-            }
-        }
-        finalPixelisation.update();
-        ofxCv::copy(finalPixelisation, gray);
-        //ofxCv::convertColor(finalPixelisation, gray, CV_RGB2GRAY);
+        //pixelisationMat.convertTo(pixelisationMat, CV_8UC1);
+        dataMutex.unlock();
+        
         //=================================================================================<<<<<<<
-        ofxCv::imitate(sobelX, gray, CV_8SC1);
-        cv::Mat srcMat = ofxCv::toCv(gray), dstMat = ofxCv::toCv(sobelX);
-        
-        //ofxCv::imitate(inter_x, gray, CV_32F);
-        cv::Sobel(srcMat, inter_x, CV_32F, 1, 0, 3, 1, 0, cv::BORDER_DEFAULT);
+        cv::Sobel(pixelisationMat, inter_x, CV_32F, 1, 0, 3, 1, 0, cv::BORDER_DEFAULT);
         inter_x.convertTo(inter_x, CV_32S);
-        // image en X
-        cv::convertScaleAbs(inter_x, dstMat);
         //=================================================================================<<<<<<<
-        ofxCv::imitate(sobelY, gray, CV_8SC1);
-        
-        cv::Mat dstMat_ = ofxCv::toCv(sobelY);
-        
-        //ofxCv::imitate(inter_y, gray, CV_32F);
-        cv::Sobel(srcMat, inter_y, CV_32F, 0, 1, 3, 1, 0, cv::BORDER_DEFAULT);
+        cv::Sobel(pixelisationMat, inter_y, CV_32F, 0, 1, 3, 1, 0, cv::BORDER_DEFAULT);
         inter_y.convertTo(inter_y, CV_32S);
-        // image en Y
-        cv::convertScaleAbs(inter_y, dstMat_);
         //=================================================================================<<<<<<<
-        cv::addWeighted(dstMat, 0.5, dstMat_, 0.5, 0, dstMat);
-        
-        //gradientVectorField.clear();
-        for (unsigned int i=0; i<finalPixelisation.getWidth(); i++) {
-            //std::vector<ofVec2f> vectorJ;
-            //tmp.clear();
-            for (unsigned int j=0; j<finalPixelisation.getHeight(); j++) {
+        for (unsigned int i=0; i<pixelisationMat.cols; i++) {
+            for (unsigned int j=0; j<pixelisationMat.rows; j++) {
                 float x = inter_x.at<int>(j, i)/(float)1020;
                 float y = inter_y.at<int>(j, i)/(float)1020;
                 gradientVectorField[i][j] = ofVec2f(x,y);
-                //tmp.push_back(ofVec2f(x, y));
             }
-            //gradientVectorField.push_back(tmp);
         }
-        gray.update();
-        sobelX.update();
-        sobelY.update();
-        finalPixelisation.update();
     }
-    ofImage pixelisation;
-    
-    
-    ofImage gray;
-    ofImage sobelX;
-    ofImage sobelY;
-    ofImage gradient;
-    
-    cv::Mat src;
-    cv::Mat inter_x,inter_y;
-    cv::Mat mag;
-    cv::Mat angle;
-    
-    cv::Mat grad;
-    
-    int unit = 20;
-public:
-    std::vector<std::vector<ofVec2f>> gradientVectorField;
-    std::vector<ofVec2f> tmp;
-    ofImage t;
-    
+    void pixelisation(cv::Mat *src, cv::Mat *dst){
+
+        for (int i=0; i<src->cols; i+=divGrad_width) {
+            for (int j=0; j<src->rows; j+=divGrad_height) {
+                int valeur = 0;
+                for (int k=0; k<divGrad_width; k++) {
+                    for (int l=0; l<divGrad_height; l++) {
+                        valeur = valeur + src->at<int>(i+k, j+l);
+                        //if(src->at<int>(i+k, j+l)!=0) cout<< src->at<int>(i+k, j+l) << endl;
+                    }
+                }
+                valeur = valeur/(divGrad_width * divGrad_height);
+                dst->at<int>(i/divGrad_width, j/divGrad_height) = valeur;
+            }
+        }
+    }
 };

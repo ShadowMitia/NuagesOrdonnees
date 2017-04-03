@@ -6,12 +6,15 @@
 //
 //
 #pragma once
+#include "Constant.h"
 #include "Flock2d.h"
 #include "ofMain.h"
 
 class BoidsThread: public ofThread {
 public:
     Flock2d flock;
+    ofThreadChannel<std::vector<Boid2d*>> boidsUpdate;
+    ofThreadChannel<std::vector<std::vector<ofVec2f>>> field;
     BoidsThread() {
         flock.setBounds(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
         flock.setBoundmode(1);
@@ -21,8 +24,8 @@ public:
         int unit= 20;
         flock.isVectorField=false;
         
-        for (int i = unit/2; i < ofGetWindowWidth(); i += unit) {
-            for(int j = unit/2; j < ofGetWindowHeight(); j += unit) {
+        for (int i = div_width/2; i < win_width; i += div_width) {
+            for(int j = div_height/2; j < win_height; j += div_height) {
                 flock.addBoid(ofVec2f(i, j),7, 10, 5, 50, 6, 60, 2, 2);
             }
         }
@@ -35,19 +38,19 @@ public:
     void setBoidsActif(vector<Boid2d*> _boidsActif){
         boidsActif = _boidsActif;
     };
-    
-public:
+private:
+
+    ofMutex dataMutex;
     vector<Boid2d *> boidsActif;
     vector<vector<ofVec2f>> *vect;
     
-    ofThreadChannel<std::vector<Boid2d*>> boidsUpdate;
-    ofThreadChannel<std::vector<std::vector<ofVec2f>>> field;
+ 
     
     void threadedFunction() {
         std::vector<Boid2d*> boids;
         boidsUpdate.receive(boids);
         std::vector<std::vector<ofVec2f>> f;
-        field.receive(f);
+        //field.receive(f);
         flock.update(&boids, &boids, &f);
     };
 };

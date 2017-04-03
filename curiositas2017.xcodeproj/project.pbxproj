@@ -237,6 +237,7 @@
 		BBAF9D981351C596CA67CAF9 /* hybridtracker.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = hybridtracker.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/contrib/hybridtracker.hpp; sourceTree = SOURCE_ROOT; };
 		BC0B6A571E913722005AC759 /* BoidsThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BoidsThread.h; sourceTree = "<group>"; };
 		BC0B6A581E9138FD005AC759 /* VectorFieldGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VectorFieldGenerator.h; sourceTree = "<group>"; };
+		BC0B6A591E914E5A005AC759 /* Constant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constant.h; sourceTree = "<group>"; };
 		BE1AEB4C5FFD966B83658A01 /* Flock2d.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = Flock2d.h; path = ../../../addons/ofxBoids/src/Flock2d.h; sourceTree = SOURCE_ROOT; };
 		C1A2E81B4FD0713346D7E806 /* affine.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = affine.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/core/affine.hpp; sourceTree = SOURCE_ROOT; };
 		C1C56D20A1A57DC44096BFE7 /* ofxCvContourFinder.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxCvContourFinder.h; path = ../../../addons/ofxOpenCv/src/ofxCvContourFinder.h; sourceTree = SOURCE_ROOT; };
@@ -921,6 +922,7 @@
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
 				BC0B6A571E913722005AC759 /* BoidsThread.h */,
 				BC0B6A581E9138FD005AC759 /* VectorFieldGenerator.h */,
+				BC0B6A591E914E5A005AC759 /* Constant.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;

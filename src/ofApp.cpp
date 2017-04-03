@@ -15,28 +15,41 @@ void ofApp::setup() {
     contourFinder.setMinAreaRadius(60);
     contourFinder.setMaxAreaRadius(1000);
     contourFinder.setThreshold(40);
+    
+    contourFinder.setUseTargetColor(false);
+    contourFinder.setAutoThreshold(false);
+    ofxCv::imitate(imageTest, imageTempMat, CV_8SC1);
+    
+    sleep(2);
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
     if (debug) ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate())+ "  Mode debug: " + std::to_string(modeDebug));
     else ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()));
+    
+    //////////////////////////////////// If new image /////////////////////////////////////
+    ofxCv::copyGray(imageTest, imageTemp);
+    //imageTemp = imageTest;
+    
+    imageTempMat = ofxCv::toCv(imageTemp);
+    ofxCv::threshold(imageTempMat, 40, false);
+    contourFinder.findContours(imageTemp);
+    
+    if (vectorField.isMainThread() && !vectorField.isThreadRunning() && contourFinder.getContours().size()>0) {
+        vectorField.pix.send(imageTempMat);
+        vectorField.startThread();
+    }
+
+    ///////////////////////////////// End If new image ///////////////////////////////////
 
     
-    boids.boidsUpdate.send(boidUpdate);
-    boids.field.send(vectorField.gradientVectorField);
-    
-  if (boids.isMainThread() && !boids.isThreadRunning()) {
-    boids.startThread();
-  }
-  if (vectorField.isMainThread() && !vectorField.isThreadRunning() && contourFinder.getContours().size()>0) {
-    //vectorField.pix.send(contourFinder.getContourThreshold());
-    //vectorField.startThread();
-  }
-    
-
-    contourFinder.findContours(imageTest);
-
+    if (boids.isMainThread() && !boids.isThreadRunning()) {
+        boids.boidsUpdate.send(boidUpdate);
+        //boids.field.send(vectorField.gradientVectorField);
+        boids.startThread();
+    }
     
 
   poly.clear();
@@ -93,7 +106,7 @@ void ofApp::draw() {
     
     if (debug) {
         switch (modeDebug) {
-            case 1:
+            case 1:{
                 ofSetColor(ofColor::red);
                 for (int i = 0; i< boids.getBoids().size(); i++) {
                     Boid2d* b = boids.flock.totalBoid.at(i);
@@ -101,26 +114,46 @@ void ofApp::draw() {
                     float lm = 10.f;
                     ofDrawLine(b->position.x, b->position.y, b->position.x + b->velocite.x*lm, b->position.y + b->velocite.y*lm);
                 }
-                ofSetColor(ofColor::white);
+                ofSetColor(ofColor::white);}
                 break;
-            case 2:
-                imageTest.draw(0, 0);
+            case 2:{
+                imageTest.draw(0, 0);}
                 break;
             case 3:{
-                //vectorField.finalPixelisation.draw(0, 0);
                 ofImage image = imageTest;
-                cv::Mat imageMat = ofxCv::toCv(image);
-                cv::Mat imageThreshold;
-                ofxCv::threshold(imageMat, 40, false);
                 image.update();
                 image.draw(0, 0);
                 }
                 break;
-            case 4:
+            case 4:{
                 ofSetColor(ofColor::azure);
                 contourFinder.getPolyline(0).draw();
-                ofSetColor(ofColor::white);
+                ofSetColor(ofColor::white);}
                 break;
+            case 5:{
+                ofImage image, drawImage;
+                ofxCv::toOf(vectorField.getPixelisationMat(), image);
+                image.update();
+                drawImage = image;
+                drawImage.draw(0, 0);
+            }
+            break;
+            case 6:{
+                ofImage image = imageTest;
+                image.update();
+                image.draw(0, 0);
+                ofSetColor(ofColor::red);
+                for (int i=0; i<vectorField.gradientVectorField_Ptr->size(); i++) {
+                    for (int j=0; j<vectorField.gradientVectorField_Ptr->at(i).size(); j++) {
+                        int _x = vectorField.gradientVectorField_Ptr->at(i).at(j).x;
+                        int _y = vectorField.gradientVectorField_Ptr->at(i).at(j).y;
+
+                        ofDrawLine(i * divGrad_width, j*divGrad_height, i*divGrad_width + _x*7, j*divGrad_height + _y*7);
+                    }
+                }
+                ofSetColor(ofColor::white);
+            }
+            break;
         }
         //t.setImageType(OF_IMAGE_GRAYSCALE);
         //ofxCv::toOf(contourFinder.getContourThreshold(), t);
@@ -148,6 +181,12 @@ void ofApp::keyPressed(int key){
                 break;
             case '4':
                 modeDebug = 4;
+                break;
+            case '5':
+                modeDebug = 5;
+                break;
+            case '6':
+                modeDebug = 6;
                 break;
         }
     }
