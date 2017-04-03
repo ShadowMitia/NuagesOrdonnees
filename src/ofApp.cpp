@@ -7,11 +7,10 @@ void ofApp::setup() {
     //cam
     imageTest.load("grayGrad8.jpg");
 
-  boids.BoidsSetup();
-  vectorField.setup();
-
-  ofBackground(0, 0, 0);
-    
+  
+    vectorField.setup();
+    boids.BoidsSetup();
+    boids.gradientVectorField_Ptr = vectorField.gradientVectorField_Ptr;
     contourFinder.setMinAreaRadius(60);
     contourFinder.setMaxAreaRadius(1000);
     contourFinder.setThreshold(40);
@@ -19,6 +18,7 @@ void ofApp::setup() {
     contourFinder.setUseTargetColor(false);
     contourFinder.setAutoThreshold(false);
     ofxCv::imitate(imageTest, imageTempMat, CV_8SC1);
+    
     
     sleep(2);
     
@@ -147,8 +147,7 @@ void ofApp::draw() {
                     for (int j=0; j<vectorField.gradientVectorField_Ptr->at(i).size(); j++) {
                         int _x = vectorField.gradientVectorField_Ptr->at(i).at(j).x;
                         int _y = vectorField.gradientVectorField_Ptr->at(i).at(j).y;
-
-                        ofDrawLine(i * divGrad_width, j*divGrad_height, i*divGrad_width + _x*7, j*divGrad_height + _y*7);
+                        ofDrawLine(i * divGrad_width, j*divGrad_height, i*divGrad_width + _x, j*divGrad_height + _y);
                     }
                 }
                 ofSetColor(ofColor::white);

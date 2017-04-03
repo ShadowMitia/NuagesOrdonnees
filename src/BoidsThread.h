@@ -12,17 +12,19 @@
 
 class BoidsThread: public ofThread {
 public:
+    
     Flock2d flock;
     ofThreadChannel<std::vector<Boid2d*>> boidsUpdate;
-    ofThreadChannel<std::vector<std::vector<ofVec2f>>> field;
+    std::vector<std::vector<ofVec2f>> *gradientVectorField_Ptr;
+    
     BoidsThread() {
         flock.setBounds(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
         flock.setBoundmode(1);
     };
     
     void BoidsSetup() {
-        int unit= 20;
-        flock.isVectorField=false;
+        
+        flock.isVectorField=true;
         
         for (int i = div_width/2; i < win_width; i += div_width) {
             for(int j = div_height/2; j < win_height; j += div_height) {
@@ -40,17 +42,29 @@ public:
     };
 private:
 
-    ofMutex dataMutex;
-    vector<Boid2d *> boidsActif;
-    vector<vector<ofVec2f>> *vect;
+        ofMutex dataMutex;
+        vector<Boid2d *> boidsActif;
+        vector<vector<ofVec2f>> *vect;
     
- 
-    
+
     void threadedFunction() {
         std::vector<Boid2d*> boids;
         boidsUpdate.receive(boids);
-        std::vector<std::vector<ofVec2f>> f;
-        //field.receive(f);
-        flock.update(&boids, &boids, &f);
+        //cout << gradientVectorField_Ptr->at(trunc(max(0.0f, min((float) (6*35) /divGrad_width,(float)divGrad_width-1)))).at(trunc(max(0.0f, min((float) 200 / divGrad_height,(float)divGrad_height-1))))<< endl;
+        //cout <<gradientVectorField_Ptr->at(35).at(35) << endl;
+        //cout << (6*35) /divGrad_width << endl;
+        std::vector<std::vector<ofVec2f>> *g =gradientVectorField_Ptr;
+        /*
+        for (int i=0; i<g->size(); i++) {
+            for (int j=0; j<g->at(i).size(); j++) {
+                if (g->at(i).at(j).x != 0) {
+                    cout << i << "  " << j << endl;
+                    
+                }
+            }
+        }
+        */
+        //cout << trunc(max(0.0f, min((float) (6*35) /divGrad_width,(float) (win_width/divGrad_width)-1))) << endl;
+        flock.update(&boids, &boids, gradientVectorField_Ptr);
     };
 };

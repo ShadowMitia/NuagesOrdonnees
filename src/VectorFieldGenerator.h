@@ -25,11 +25,6 @@ public:
         pixelisationMat = ofxCv::toCv(pixelisationImage);
         gradientVectorField.clear();
         gradientVectorField.resize(win_width/divGrad_width,vector<ofVec2f>(win_height/divGrad_height));
-        while (gradientVectorField[0].size() == 0 ) {
-            cout << "Bonne Question";
-            gradientVectorField.clear();
-            gradientVectorField.resize(win_width/divGrad_width,vector<ofVec2f>(win_height/divGrad_height));
-        }
         gradientVectorField_Ptr = &gradientVectorField;
         /*
         gradientVectorField.resize(win_width/divGrad_width);
@@ -90,14 +85,12 @@ private:
         }
     }
     void pixelisation(cv::Mat *src, cv::Mat *dst){
-
         for (int i=0; i<src->cols; i+=divGrad_width) {
             for (int j=0; j<src->rows; j+=divGrad_height) {
                 int valeur = 0;
                 for (int k=0; k<divGrad_width; k++) {
                     for (int l=0; l<divGrad_height; l++) {
                         valeur = valeur + src->at<int>(i+k, j+l);
-                        //if(src->at<int>(i+k, j+l)!=0) cout<< src->at<int>(i+k, j+l) << endl;
                     }
                 }
                 valeur = valeur/(divGrad_width * divGrad_height);
