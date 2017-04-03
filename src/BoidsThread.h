@@ -28,7 +28,7 @@ public:
         
         for (int i = div_width/2; i < win_width; i += div_width) {
             for(int j = div_height/2; j < win_height; j += div_height) {
-                flock.addBoid(ofVec2f(i, j),7, 10, 5, 50, 6, 60, 2, 2);
+                flock.addBoid(ofVec2f(i, j),10, 10, 5, 50, 6, 60, 2, 2);
             }
         }
     };

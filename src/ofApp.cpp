@@ -5,8 +5,8 @@ void ofApp::setup() {
     debug = true;
     modeDebug = 1;
     //cam
-    imageTest.load("grayGrad8.jpg");
-
+    //imageTest.load("grayGrad8.jpg");
+	imageTest.load("etoile.png");
   
     vectorField.setup();
     boids.BoidsSetup();
