@@ -17,7 +17,7 @@ void ofApp::setup() {
     
     contourFinder.setUseTargetColor(false);
     contourFinder.setAutoThreshold(false);
-    ofxCv::imitate(imageTest, imageTempMat, CV_8SC1);
+    ofxCv::imitate(imageTest, imageTempMat, CV_8UC1);
     
     
     //sleep(2);

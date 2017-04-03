@@ -16,12 +16,16 @@ public:
     
     ofThreadChannel<cv::Mat> pix;
     void setup() {
-        ofxCv::allocate(inputMat, win_width, win_height, CV_8UC1);
+        //ofxCv::allocate(inputMat, win_width, win_height, CV_8UC1);
         //ofxCv::allocate(pixelisationMat,win_width/divGrad_width,win_height/divGrad_height,CV_8UC1);
+        inputImage.allocate(win_width, win_height, OF_IMAGE_GRAYSCALE);
+        inputImage.setUseTexture(false);
+        inputMat= ofxCv::toCv(inputImage);
         
         pixelisationImage.allocate(win_width/divGrad_width, win_height/divGrad_height, OF_IMAGE_GRAYSCALE);
         pixelisationImage.setUseTexture(false);
         pixelisationMat = ofxCv::toCv(pixelisationImage);
+        //inputMat = cv::Mat(win_width, win_height, ofxCv::getCvImageType(pixelisationImage), 0, 0);
         gradientVectorField.clear();
         gradientVectorField.resize(win_width/divGrad_width,vector<ofVec2f>(win_height/divGrad_height));
         gradientVectorField_Ptr = &gradientVectorField;
@@ -55,7 +59,7 @@ private:
     ofMutex dataMutex;
     cv::Mat inputMat,pixelisationMat;
     cv::Mat inter_x,inter_y;
-    ofImage pixelisationImage;
+    ofImage pixelisationImage, inputImage;
     
     void threadedFunction() {
         cv::Mat m;
@@ -63,10 +67,10 @@ private:
         ofxCv::copy(m, inputMat);
         //ofxCv::copy(inputMat,pixelisationMat);
         dataMutex.lock();
-        pixelisation(&inputMat, &pixelisationMat);
-        
+        //pixelisation(&inputMat, &pixelisationMat);
         //pixelisationMat.convertTo(pixelisationMat, CV_8UC1);
         dataMutex.unlock();
+        ofxCv::resize(inputMat, pixelisationMat);
         
         //=================================================================================<<<<<<<
         cv::Sobel(pixelisationMat, inter_x, CV_32F, 1, 0, 7, 1, 0, cv::BORDER_DEFAULT);
@@ -79,7 +83,9 @@ private:
             for (unsigned int j=0; j<pixelisationMat.rows; j++) {
                 float x = inter_x.at<int>(j, i)/(float)1020;
                 float y = inter_y.at<int>(j, i)/(float)1020;
-                gradientVectorField[i][j] = ofVec2f(x,y);
+                if (gradientVectorField[i].size()>0) {
+                    gradientVectorField[i][j] = ofVec2f(x,y);
+                }
             }
         }
     }

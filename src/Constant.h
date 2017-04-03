@@ -13,6 +13,6 @@
 #define cam_height 600
 #define div_width 20
 #define div_height 20
-#define divGrad_width 2
-#define divGrad_height 2
+#define divGrad_width 4
+#define divGrad_height 4
 
