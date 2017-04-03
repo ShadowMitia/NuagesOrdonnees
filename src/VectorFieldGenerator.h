@@ -11,7 +11,6 @@
 #include "Constant.h"
 
 class VectorFieldGenerator : public ofThread {
-    
 public:
     std::vector<std::vector<ofVec2f>> *gradientVectorField_Ptr;
     
@@ -70,10 +69,10 @@ private:
         dataMutex.unlock();
         
         //=================================================================================<<<<<<<
-        cv::Sobel(pixelisationMat, inter_x, CV_32F, 1, 0, 3, 1, 0, cv::BORDER_DEFAULT);
+        cv::Sobel(pixelisationMat, inter_x, CV_32F, 1, 0, 7, 1, 0, cv::BORDER_DEFAULT);
         inter_x.convertTo(inter_x, CV_32S);
         //=================================================================================<<<<<<<
-        cv::Sobel(pixelisationMat, inter_y, CV_32F, 0, 1, 3, 1, 0, cv::BORDER_DEFAULT);
+        cv::Sobel(pixelisationMat, inter_y, CV_32F, 0, 1, 7, 1, 0, cv::BORDER_DEFAULT);
         inter_y.convertTo(inter_y, CV_32S);
         //=================================================================================<<<<<<<
         for (unsigned int i=0; i<pixelisationMat.cols; i++) {

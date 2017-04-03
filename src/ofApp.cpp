@@ -20,14 +20,14 @@ void ofApp::setup() {
     ofxCv::imitate(imageTest, imageTempMat, CV_8SC1);
     
     
-    sleep(2);
+    //sleep(2);
     
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
-    if (debug) ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate())+ "  Mode debug: " + std::to_string(modeDebug));
-    else ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()));
+    if (debug) ofSetWindowTitle("FPS: " + std::to_string((int)ofGetFrameRate())+ "  Mode debug: " + std::to_string(modeDebug));
+    else ofSetWindowTitle("FPS: " + std::to_string((int)ofGetFrameRate()));
     
     //////////////////////////////////// If new image /////////////////////////////////////
     ofxCv::copyGray(imageTest, imageTemp);
