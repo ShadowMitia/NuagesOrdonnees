@@ -5,8 +5,8 @@ void ofApp::setup() {
     debug = true;
     modeDebug = 1;
     ///////////////////////////Caméra///////////////////////
-    //imageTest.load("grayGrad8.jpg");
-    imageTest.load("etoile.png");
+    imageTest.load("grayGrad8.jpg");
+    //imageTest.load("etoile.png");
     imageTest.resize(win_width, win_height);
     ///////////////////////////VectorField//////////////////
     vectorField.setup();
@@ -91,7 +91,6 @@ void ofApp::update() {
     }
   }*/
     boidUpdate.clear();
-    cout << boidUpdate.size() << endl;
     if (contourFinder.getContours().size()>0) {
         ofPolyline popo = contourFinder.getPolyline(0);
         for (int x = 0; x<(ofGetWindowWidth()/20); x++) {
@@ -103,17 +102,20 @@ void ofApp::update() {
                     b->color=ofColor::blue;
                     boidUpdate.push_back(b);
                 }
-                else  b->active = false;
-                //b->color=ofColor::red;
+                else{
+                    b->active = false;
+                    b->color=ofColor::red;
+                }
             }
         }
     }
-    cout << boidUpdate.size() << endl;
+    //cout << boidUpdate.size() << endl;
+    //boidUpdate.clear();
+    //boidUpdate = totalBoids;
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
-    
     if (debug) {
         switch (modeDebug) {
             case 1:{
@@ -166,7 +168,6 @@ void ofApp::draw() {
         }
 
     }
-  
 }
 
 //--------------------------------------------------------------
