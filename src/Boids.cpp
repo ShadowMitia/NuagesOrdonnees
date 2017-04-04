@@ -14,7 +14,6 @@
 
 
 Boid2d::Boid2d(Flock2d * _flock){
-    Boid2d();
     this->flockPtr = _flock;
 }
 Boid2d * Boid2d::setFlock(Flock2d * flock) {
@@ -228,4 +227,11 @@ float * Boid2d::foncAlig(Boid2d *other, float *ali){
     ali[1] += other->velocite.y * other->alignGroup;
     return ali;
 }
+void Boid2d::returnInitial(){
+    if (this->position == this->positionInitiale) {
+        return;
+    }
+    
+}
+
 

@@ -32,6 +32,7 @@ void ofApp::setup() {
     }
     boids.BoidsSetup(flock.gradientVectorField_Ptr);
     
+    
     /////////////////////////contourFinder/////////////////
     contourFinder.setMinAreaRadius(60);
     contourFinder.setMaxAreaRadius(1000);
@@ -59,7 +60,7 @@ void ofApp::update() {
     if (vectorField.isMainThread() && !vectorField.isThreadRunning() && contourFinder.getContours().size()>0) {
         vectorField.pix.send(imageTempMat);
         vectorField.startThread();
-    }
+    }else cout << "NON StartVectorFreldThread" << endl;
 
     ///////////////////////////////// End If new image ///////////////////////////////////
 
@@ -67,7 +68,7 @@ void ofApp::update() {
     if (boids.isMainThread() && !boids.isThreadRunning()) {
         boids.boidsUpdate.send(boidUpdate);
         boids.startThread();
-    }
+    }else cout << "NON StartBoidsThread" << endl;
     
 //========================================= coeur ===============================
 // borne du rectangle

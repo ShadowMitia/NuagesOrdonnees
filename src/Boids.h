@@ -23,20 +23,6 @@ public:
     bool active;
     ///////////////////////////////////////////////////////////////////
     
-    Boid2d() {
-        positionInitiale = position = velocite = acceleration = ofVec2f(0, 0);
-        flockPtr = NULL;
-        separateGroup= 20.0f;
-        alignGroup = 12.0f;
-        cohesionGroup = 3.0f;
-        distSeparationGroup = 10.0f;
-        distAlignGroup = 20.0f;
-        distCohesionGroup= 25.0f;
-        maxSpeed = 2.f;
-        maxForce = 10.0f;
-        color = ofColor::black;
-        size = 20;
-    }
     Boid2d(Flock2d * flock);
     Boid2d * setFlock(Flock2d * flock);
     
@@ -91,14 +77,13 @@ public:
     ////// fin set Valeurs alex
     void bounds();
     void boudsColision();
-    
-    /*
-     * main funcs
-     */
+ 
     
     
     ///// fonction Utile /////
     void update(vector<Boid2d*> *otherBoids,vector<vector<ofVec2f>> *fieldVector);
+    void returnInitial();
+
     
 private:
     float* flockfullNew(float *vec, vector<Boid2d*> *otherBoids);
