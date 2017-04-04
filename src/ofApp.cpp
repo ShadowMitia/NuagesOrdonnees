@@ -5,8 +5,8 @@ void ofApp::setup() {
     debug = true;
     modeDebug = 1;
     ///////////////////////////CamŽra///////////////////////
-    imageTest.load("grayGrad8.jpg");
-    //imageTest.load("etoile.png");
+    //imageTest.load("grayGrad8.jpg");
+    imageTest.load("etoile.png");
     imageTest.resize(win_width, win_height);
     ///////////////////////////VectorField//////////////////
     vectorField.setup();
@@ -93,9 +93,9 @@ void ofApp::update() {
     boidUpdate.clear();
     if (contourFinder.getContours().size()>0) {
         ofPolyline popo = contourFinder.getPolyline(0);
-        for (int x = 0; x<(ofGetWindowWidth()/20); x++) {
-            for (int y = 0; y<(ofGetWindowHeight()/20); y++) {
-                Boid2d* b = totalBoids[x * ofGetWindowHeight()/20 + y];
+        for (int x = 0; x<(win_width/div_width); x++) {
+            for (int y = 0; y<(win_height/div_height); y++) {
+                Boid2d* b = totalBoids[x * win_width/div_width + y];
                 //cout << b->positionInitiale.x << "   " << b->positionInitiale.y << endl;
                 if (popo.inside(b->positionInitiale.x,b->positionInitiale.y)){
                     b->active = true;
@@ -110,8 +110,6 @@ void ofApp::update() {
         }
     }
     //cout << boidUpdate.size() << endl;
-    //boidUpdate.clear();
-    //boidUpdate = totalBoids;
 }
 
 //--------------------------------------------------------------
