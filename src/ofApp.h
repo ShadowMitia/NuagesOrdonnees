@@ -36,7 +36,10 @@ public:
 /////////////////////////////////////////
     Flock2d flock;
     std::vector<Boid2d*> totalBoids;
-    BoidsThread boids;
+    BoidsUpdateThread boidsUpdate[nbThreadBoids];
+    std::vector<Boid2d*> boidUpdate[nbThreadBoids];
+    std::vector<Boid2d*> boidReturnInitial;
+    BoidsReturnInitialThread boidsReturnInital;
     VectorFieldGenerator vectorField;
 
   // Camera stream
@@ -47,7 +50,7 @@ public:
 
   ofImage contourImage;
 
-  std::vector<Boid2d*> boidUpdate;
+
 
   int posX = 0;
   int posY = 0;

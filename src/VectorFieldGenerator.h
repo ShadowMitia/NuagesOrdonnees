@@ -66,8 +66,8 @@ private:
         //=================================================================================<<<<<<<
         for (unsigned int i=0; i<pixelisationMat.cols; i++) {
             for (unsigned int j=0; j<pixelisationMat.rows; j++) {
-                float x = 3*inter_x.at<int>(j, i)/(float)163200;
-                float y = 3*inter_y.at<int>(j, i)/(float)163200;
+                float x = 4*inter_x.at<int>(j, i)/(float)163200;
+                float y = 4*inter_y.at<int>(j, i)/(float)163200;
                 // si 3=>1020  si 5=>12240 si 7=> 163200
                 if (gradientVectorField[i].size()>0) {
                     gradientVectorField[i][j] = ofVec2f(x,y);

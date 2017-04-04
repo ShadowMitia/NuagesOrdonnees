@@ -7,11 +7,10 @@
 //
 #pragma once
 #include "Constant.h"
-//#include "Flock2d.h"
 #include "ofMain.h"
 #include "Boids.h"
 
-///////////////////////////// Flock  ////////////////////
+///////////////////////////// Flock  //////////////////////////
 class Flock2d {
 public:
     ////////////////////////////////////// Vector Boid ////////////////////////////////
@@ -60,15 +59,14 @@ public:
     }
 
 };
-///////////////////////////// Thread ////////////////////
-class BoidsThread: public ofThread {
+///////////////////////////// ThreadUpdate ////////////////////
+class BoidsUpdateThread: public ofThread {
 public:
     
     ofThreadChannel<std::vector<Boid2d*>> boidsUpdate;
     std::vector<std::vector<ofVec2f>> *gradientVectorField_Ptr;
     
-    BoidsThread() {
-    };
+    BoidsUpdateThread() {};
     
     void BoidsSetup(std::vector<std::vector<ofVec2f>> *_gradientVectorField_Ptr) {
         gradientVectorField_Ptr = _gradientVectorField_Ptr;
@@ -82,6 +80,24 @@ private:
         boidsUpdate.receive(boids);
         for (int i=0; i<boids.size(); i++) {
             boids[i]->update(&boids,gradientVectorField_Ptr);
+        }
+    };
+};
+////////////////////// ThreadReturnInitial ////////////////////
+class BoidsReturnInitialThread: public ofThread {
+public:
+    ofThreadChannel<std::vector<Boid2d*>> boidsReturnInitial;
+    BoidsReturnInitialThread() {};
+    
+    void BoidsSetup() {};
+    
+private:
+    ofMutex dataMutex;
+    void threadedFunction() {
+        std::vector<Boid2d*> boids;
+        boidsReturnInitial.receive(boids);
+        for (int i=0; i<boids.size(); i++) {
+            boids[i]->returnInitial();
         }
     };
 };
