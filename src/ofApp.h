@@ -33,6 +33,9 @@ public:
   void dragEvent(ofDragInfo dragInfo);
   void gotMessage(ofMessage msg);
 
+/////////////////////////////////////////
+    Flock2d flock;
+    std::vector<Boid2d*> totalBoids;
     BoidsThread boids;
     VectorFieldGenerator vectorField;
 
@@ -49,9 +52,6 @@ public:
   int posX = 0;
   int posY = 0;
 
-  ofPolyline poly;
-
-    ofImage t;
     ofImage imageTest;
     ofImage imageTemp;
     cv::Mat imageTempMat;

@@ -4,23 +4,43 @@
 void ofApp::setup() {
     debug = true;
     modeDebug = 1;
-    //cam
+    ///////////////////////////Caméra///////////////////////
     //imageTest.load("grayGrad8.jpg");
-	imageTest.load("etoile.png");
-  
+    imageTest.load("etoile.png");
+    imageTest.resize(win_width, win_height);
+    ///////////////////////////VectorField//////////////////
     vectorField.setup();
-    boids.BoidsSetup();
-    boids.gradientVectorField_Ptr = vectorField.gradientVectorField_Ptr;
+    ///////////////////////////Flock2d//////////////////////
+    flock.setBounds(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+    flock.setBoundmode(1);
+    flock.isVectorField=true;
+    Flock2d *_Ptr = flock._Ptr;
+    flock.gradientVectorField_Ptr = vectorField.gradientVectorField_Ptr;
+    for (int i = div_width/2; i < win_width; i += div_width) {
+        for(int j = div_height/2; j < win_height; j += div_height) {
+            Boid2d * b = new Boid2d(_Ptr);
+            b->setLoc(ofVec2f(i,j));
+            b->positionInitiale = b->position;
+            b->setValSepa(10, 10);
+            b->setValCohe(5, 50);
+            b->setValAlig(6, 60);
+            b->setMaxForce(2);
+            b->setMaxSpeed(2);
+            b->active=false;
+            totalBoids.push_back(b);
+        }
+    }
+    boids.BoidsSetup(flock.gradientVectorField_Ptr);
+    
+    /////////////////////////contourFinder/////////////////
     contourFinder.setMinAreaRadius(60);
     contourFinder.setMaxAreaRadius(1000);
     contourFinder.setThreshold(40);
-    
     contourFinder.setUseTargetColor(false);
     contourFinder.setAutoThreshold(false);
+    ////////////////////////////////////////////////////////
     ofxCv::imitate(imageTest, imageTempMat, CV_8UC1);
     
-    
-    //sleep(2);
     
 }
 
@@ -47,25 +67,12 @@ void ofApp::update() {
     
     if (boids.isMainThread() && !boids.isThreadRunning()) {
         boids.boidsUpdate.send(boidUpdate);
-        //boids.field.send(vectorField.gradientVectorField);
         boids.startThread();
     }
     
-
-  poly.clear();
-//========================================= coeur ===============================
-  float i = 0;
-  while (i < TWO_PI) { // make a heart
-    float r = (2-2*sin(i) + sin(i)*sqrt(abs(cos(i))) / (sin(i)+1.4)) * - 20;
-    float x = ofGetMouseX() + 100 + cos(i) * r;
-    float y = ofGetMouseY() + 100 + sin(i) * r;
-    poly.addVertex(ofVec2f(x,y));
-    i+=0.005*HALF_PI*0.5;
-  }
-  poly.close(); // close the shape
 //========================================= coeur ===============================
 // borne du rectangle
-  boidUpdate.clear();
+  
 /*  auto minX = std::max(0, ofGetMouseY()/25);
   auto minY = std::max(0, ofGetMouseX()/25);
   auto maxX = std::min((ofGetMouseY()+200)/25, ((ofGetWindowHeight())/25)-1);
@@ -83,22 +90,25 @@ void ofApp::update() {
       }
     }
   }*/
+    boidUpdate.clear();
+    cout << boidUpdate.size() << endl;
     if (contourFinder.getContours().size()>0) {
         ofPolyline popo = contourFinder.getPolyline(0);
-        //popo.close();
         for (int x = 0; x<(ofGetWindowWidth()/20); x++) {
             for (int y = 0; y<(ofGetWindowHeight()/20); y++) {
-                Boid2d* b = boids.getBoids()[x * ofGetWindowHeight()/20 + y];
+                Boid2d* b = totalBoids[x * ofGetWindowHeight()/20 + y];
                 //cout << b->positionInitiale.x << "   " << b->positionInitiale.y << endl;
                 if (popo.inside(b->positionInitiale.x,b->positionInitiale.y)){
                     b->active = true;
+                    b->color=ofColor::blue;
                     boidUpdate.push_back(b);
-                    
                 }
                 else  b->active = false;
+                //b->color=ofColor::red;
             }
         }
     }
+    cout << boidUpdate.size() << endl;
 }
 
 //--------------------------------------------------------------
@@ -107,9 +117,9 @@ void ofApp::draw() {
     if (debug) {
         switch (modeDebug) {
             case 1:{
-                ofSetColor(ofColor::red);
-                for (int i = 0; i< boids.getBoids().size(); i++) {
-                    Boid2d* b = boids.flock.totalBoid.at(i);
+                for (int i = 0; i< totalBoids.size(); i++) {
+                    Boid2d* b = totalBoids[i];
+                    ofSetColor(b->color);
                     ofDrawRectangle(b->position.x, b->position.y, 3,3);
                     float lm = 10.f;
                     ofDrawLine(b->position.x, b->position.y, b->position.x + b->velocite.x*lm, b->position.y + b->velocite.y*lm);
@@ -154,9 +164,7 @@ void ofApp::draw() {
             }
             break;
         }
-        //t.setImageType(OF_IMAGE_GRAYSCALE);
-        //ofxCv::toOf(contourFinder.getContourThreshold(), t);
-        //t.draw(0, 0);
+
     }
   
 }

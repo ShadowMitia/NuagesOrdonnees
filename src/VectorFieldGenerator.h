@@ -16,25 +16,12 @@ public:
     
     ofThreadChannel<cv::Mat> pix;
     void setup() {
-        //ofxCv::allocate(inputMat, win_width, win_height, CV_8UC1);
-        //ofxCv::allocate(pixelisationMat,win_width/divGrad_width,win_height/divGrad_height,CV_8UC1);
-        inputImage.allocate(win_width, win_height, OF_IMAGE_GRAYSCALE);
-        inputImage.setUseTexture(false);
-        inputMat= ofxCv::toCv(inputImage);
+        ofxCv::allocate(inputMat, win_width, win_height, CV_8UC1);
+        ofxCv::allocate(pixelisationMat,win_width/divGrad_width,win_height/divGrad_height,CV_8UC1);
         
-        pixelisationImage.allocate(win_width/divGrad_width, win_height/divGrad_height, OF_IMAGE_GRAYSCALE);
-        pixelisationImage.setUseTexture(false);
-        pixelisationMat = ofxCv::toCv(pixelisationImage);
-        //inputMat = cv::Mat(win_width, win_height, ofxCv::getCvImageType(pixelisationImage), 0, 0);
         gradientVectorField.clear();
         gradientVectorField.resize(win_width/divGrad_width,vector<ofVec2f>(win_height/divGrad_height));
         gradientVectorField_Ptr = &gradientVectorField;
-        /*
-        gradientVectorField.resize(win_width/divGrad_width);
-         for (auto& v : gradientVectorField) {
-         v.resize(win_height/divGrad_height);
-         }
-         */
 
         ofxCv::imitate(inter_x, pixelisationMat, CV_32F);
         ofxCv::imitate(inter_y, pixelisationMat, CV_32F);
@@ -66,10 +53,7 @@ private:
         pix.receive(m);
         ofxCv::copy(m, inputMat);
         //ofxCv::copy(inputMat,pixelisationMat);
-        dataMutex.lock();
-        //pixelisation(&inputMat, &pixelisationMat);
-        //pixelisationMat.convertTo(pixelisationMat, CV_8UC1);
-        dataMutex.unlock();
+
         ofxCv::resize(inputMat, pixelisationMat);
         
         //=================================================================================<<<<<<<
@@ -89,18 +73,5 @@ private:
             }
         }
     }
-    void pixelisation(cv::Mat *src, cv::Mat *dst){
-        for (int i=0; i<src->cols; i+=divGrad_width) {
-            for (int j=0; j<src->rows; j+=divGrad_height) {
-                int valeur = 0;
-                for (int k=0; k<divGrad_width; k++) {
-                    for (int l=0; l<divGrad_height; l++) {
-                        valeur = valeur + src->at<int>(i+k, j+l);
-                    }
-                }
-                valeur = valeur/(divGrad_width * divGrad_height);
-                dst->at<int>(i/divGrad_width, j/divGrad_height) = valeur;
-            }
-        }
-    }
+    
 };
