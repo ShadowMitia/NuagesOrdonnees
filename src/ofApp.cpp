@@ -1,9 +1,8 @@
 #include "ofApp.h"
-
 //--------------------------------------------------------------
 void ofApp::setup() {
     debug = true;
-    modeDebug = 1;
+    modeDebug = 7;
     ///////////////////////////Caméra///////////////////////
     //imageTest.load("grayGrad8.jpg");
     imageTest.load("etoile.png");
@@ -21,12 +20,13 @@ void ofApp::setup() {
             Boid2d * b = new Boid2d(_Ptr);
             b->setLoc(ofVec2f(i,j));
             b->positionInitiale = b->position;
-            b->setValSepa(10, 10);
-            b->setValCohe(5, 50);
-            b->setValAlig(6, 60);
+            b->setValSepa(30, 10);
+            b->setValCohe(10, 30);
+            b->setValAlig(10, 35);
             b->setMaxForce(2);
             b->setMaxSpeed(2);
             b->active=false;
+            b->size = div_width;
             totalBoids.push_back(b);
         }
     }
@@ -43,7 +43,6 @@ void ofApp::setup() {
     
     
 }
-
 //--------------------------------------------------------------
 void ofApp::update() {
     if (debug) ofSetWindowTitle("FPS: " + std::to_string((int)ofGetFrameRate())+ "  Mode debug: " + std::to_string(modeDebug));
@@ -99,19 +98,22 @@ void ofApp::update() {
                 //cout << b->positionInitiale.x << "   " << b->positionInitiale.y << endl;
                 if (popo.inside(b->positionInitiale.x,b->positionInitiale.y)){
                     b->active = true;
-                    b->color=ofColor::blue;
-                    boidUpdate.push_back(b);
+                    b->color = ofColor::blueViolet;
+                    b->size = max(3.f, float (b->size - 0.25));
+                    if (b->size == 3) {
+                        boidUpdate.push_back(b);
+                    }
                 }
                 else{
                     b->active = false;
-                    b->color=ofColor::red;
+                    b->color=ofColor::black;
+                    b->size = 20; /// attention il ne faut pas que mettre ça ici car il faut que le boids soit à sa position initial
                 }
             }
         }
     }
     //cout << boidUpdate.size() << endl;
 }
-
 //--------------------------------------------------------------
 void ofApp::draw() {
     if (debug) {
@@ -163,11 +165,21 @@ void ofApp::draw() {
                 ofSetColor(ofColor::white);
             }
             break;
+            case 7: {
+             
+                for (int i = 0; i< totalBoids.size(); i++) {
+                    Boid2d* b = totalBoids[i];
+                    ofSetColor(b->color);
+                    ofDrawRectangle(b->position.x - b->size/2, b->position.y - b->size/2, b->size,b->size);
+                }
+                ofSetColor(ofColor::white);
+                
+                
+            }
         }
 
     }
 }
-
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     if (key == ' ') {
@@ -194,55 +206,48 @@ void ofApp::keyPressed(int key){
             case '6':
                 modeDebug = 6;
                 break;
+            case '7':
+                modeDebug = 7;
+                break;
         }
     }
 }
-
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
 
 }
-
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
 
 }
-
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
 
 }
-
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
 
 }
-
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
 
 }
-
 //--------------------------------------------------------------
 void ofApp::mouseEntered(int x, int y){
 
 }
-
 //--------------------------------------------------------------
 void ofApp::mouseExited(int x, int y){
 
 }
-
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
 
 }
-
 //--------------------------------------------------------------
 void ofApp::gotMessage(ofMessage msg){
 
 }
-
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 

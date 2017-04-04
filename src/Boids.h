@@ -7,7 +7,7 @@
 //
 #pragma once
 #include <ofMain.h>
-
+#include "Constant.h"
 class Flock2d;
 
 class Boid2d {
@@ -19,10 +19,9 @@ public:
     float distSeparationGroup, distAlignGroup, distCohesionGroup;
     float maxSpeed, maxForce;
     ofColor color;
-    
+    float size;
     bool active;
     ///////////////////////////////////////////////////////////////////
-    
     
     Boid2d() {
         positionInitiale = position = velocite = acceleration = ofVec2f(0, 0);
@@ -35,7 +34,8 @@ public:
         distCohesionGroup= 25.0f;
         maxSpeed = 2.f;
         maxForce = 10.0f;
-        color = ofColor::yellow;
+        color = ofColor::black;
+        size = 20;
     }
     Boid2d(Flock2d * flock);
     Boid2d * setFlock(Flock2d * flock);
