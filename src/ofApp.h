@@ -50,8 +50,6 @@ public:
 
   ofImage contourImage;
 
-
-
   int posX = 0;
   int posY = 0;
 
