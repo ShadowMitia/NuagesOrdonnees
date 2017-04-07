@@ -7,14 +7,20 @@
 		<ClCompile Include="src\main.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
-		<ClCompile Include="src\Boids.cpp">
-			<Filter>src</Filter>
-		</ClCompile>
 		<ClCompile Include="src\main.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
 		<ClCompile Include="src\ofApp.cpp">
 			<Filter>src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxBoids\src\Boid2d.cpp">
+			<Filter>addons\ofxBoids\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxBoids\src\Boid2d_0.cpp">
+			<Filter>addons\ofxBoids\src</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxBoids\src\Boid3d.cpp">
+			<Filter>addons\ofxBoids\src</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\addons\ofxCv\libs\CLD\src\ETF.cpp">
 			<Filter>addons\ofxCv\libs\CLD\src</Filter>
@@ -107,6 +113,12 @@
 		</Filter>
 		<Filter Include="addons">
 			<UniqueIdentifier>{71834F65-F3A9-211E-73B8-DC85}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxBoids">
+			<UniqueIdentifier>{A98B2C37-EE1D-1D60-EF9A-F2A6}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="addons\ofxBoids\src">
+			<UniqueIdentifier>{0B70034A-57B6-B939-403B-8E75}</UniqueIdentifier>
 		</Filter>
 		<Filter Include="addons\ofxCv">
 			<UniqueIdentifier>{A9C1150B-C1CB-2BC0-0F32-ED3B}</UniqueIdentifier>
@@ -236,12 +248,6 @@
 		<ClInclude Include="src\ofApp.h">
 			<Filter>src</Filter>
 		</ClInclude>
-		<ClInclude Include="src\Boids.h">
-			<Filter>src</Filter>
-		</ClInclude>
-		<ClInclude Include="src\Boids.hpp">
-			<Filter>src</Filter>
-		</ClInclude>
 		<ClInclude Include="src\BoidsThread.h">
 			<Filter>src</Filter>
 		</ClInclude>
@@ -253,6 +259,30 @@
 		</ClInclude>
 		<ClInclude Include="src\VectorFieldGenerator.h">
 			<Filter>src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxBoids\src\AttractionPoint2d.h">
+			<Filter>addons\ofxBoids\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxBoids\src\AttractionPoint3d.h">
+			<Filter>addons\ofxBoids\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxBoids\src\Boid2d.h">
+			<Filter>addons\ofxBoids\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxBoids\src\Boid2d_0.h">
+			<Filter>addons\ofxBoids\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxBoids\src\Boid3d.h">
+			<Filter>addons\ofxBoids\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxBoids\src\Flock2d.h">
+			<Filter>addons\ofxBoids\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxBoids\src\Flock3d.h">
+			<Filter>addons\ofxBoids\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxBoids\src\GroupBoids2d.h">
+			<Filter>addons\ofxBoids\src</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\addons\ofxCv\src\ofxCv.h">
 			<Filter>addons\ofxCv\src</Filter>
