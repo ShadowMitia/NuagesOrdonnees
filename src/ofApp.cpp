@@ -4,8 +4,8 @@ void ofApp::setup() {
     debug = true;
     modeDebug = 7;
     ///////////////////////////CamŽra///////////////////////
-    imageTest.load("grayGrad8.jpg");
-    //imageTest.load("etoile.png");
+    //imageTest.load("grayGrad8.jpg");
+    imageTest.load("etoile.png");
     imageTest.resize(win_width, win_height);
     ///////////////////////////VectorField//////////////////
     vectorField.setup();
@@ -63,7 +63,7 @@ void ofApp::update() {
     if (vectorField.isMainThread() && !vectorField.isThreadRunning() && contourFinder.getContours().size()>0) {
         vectorField.pix.send(imageTempMat);
         vectorField.startThread();
-    }else// cout << "NON StartVectorFreldThread" << endl;
+    }else cout << "NON StartVectorFreldThread" << endl;
 
     ///////////////////////////////// End If new image ///////////////////////////////////
     
