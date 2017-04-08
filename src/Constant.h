@@ -15,4 +15,4 @@
 #define div_height 20
 #define divGrad_width 4
 #define divGrad_height 4
-#define nbThreadBoids 4
+#define nbThreadBoids 5

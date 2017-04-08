@@ -5,13 +5,13 @@ void ofApp::setup() {
     modeDebug = 7;
     ///////////////////////////Caméra///////////////////////
     //imageTest.load("grayGrad8.jpg");
-    imageTest.load("etoile.png");
+    imageTest.load("yang.png");
     imageTest.resize(win_width, win_height);
     ///////////////////////////VectorField//////////////////
     vectorField.setup();
     ///////////////////////////Flock2d//////////////////////
     flock.setBounds(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
-    flock.setBoundmode(1);
+    flock.setBoundmode(0);
     flock.isVectorField=true;
     Flock2d *_Ptr = flock._Ptr;
     flock.gradientVectorField_Ptr = vectorField.gradientVectorField_Ptr;
@@ -30,7 +30,7 @@ void ofApp::setup() {
             totalBoids.push_back(b);
         }
     }
-    for(int i=0; i< 4 ; i++){
+    for(int i=0; i< nbThreadBoids;i++) {
         boidsUpdate[i].BoidsSetup(flock.gradientVectorField_Ptr);
     }
     
@@ -41,6 +41,7 @@ void ofApp::setup() {
     contourFinder.setThreshold(40);
     contourFinder.setUseTargetColor(false);
     contourFinder.setAutoThreshold(false);
+    contourFinder.setFindHoles(true);
     
     ////////////////////////////////////////////////////////
     ofxCv::imitate(imageTest, imageTempMat, CV_8UC1);
@@ -57,7 +58,7 @@ void ofApp::update() {
     //imageTemp = imageTest;
     
     imageTempMat = ofxCv::toCv(imageTemp);
-    ofxCv::threshold(imageTempMat, 40, false);
+    ofxCv::threshold(imageTempMat, 40, true);
     contourFinder.findContours(imageTemp);
     
     if (vectorField.isMainThread() && !vectorField.isThreadRunning() && contourFinder.getContours().size()>0) {
@@ -82,23 +83,37 @@ void ofApp::update() {
         for (int y = 0; y<(win_height/div_height); y++) {
             Boid2d* b = totalBoids[x * win_width/div_width + y];
             bool active = false;
+	    bool insideHole = false;
+	    int index = -1;
             for (int i = 0; i< contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
                 if (contourFinder.getPolyline(i).inside(b->positionInitiale.x,b->positionInitiale.y)){
+		    index = i;
                     active = true;
-                    b->active = true;
-                    b->color = ofColor::blueViolet;
-                    b->size = max(3.f, float (b->size - 0.25));
-                    if (b->size == 3) {
-                        boidUpdate[i].push_back(b);
-                    }
+                }
+            }
+	    for (int i = 0; i< contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
+	      if (contourFinder.getHole(i) && contourFinder.getPolyline(i).inside(b->positionInitiale.x,b->positionInitiale.y)){
+		active = false;
+		insideHole = true;
                 }
             }
             if (!active){
                 b->active = false;
+		if (insideHole) {
+		  b->color = ofColor::green;
+		} else {
                 b->color=ofColor::black;
+		}
                 b->size = 20; /// attention il ne faut pas que mettre ça ici car il faut que le boids soit à sa position initial
                 boidReturnInitial.push_back(b);
-            }
+            } else {
+		b->active = true;
+		b->color = ofColor::blueViolet;
+		b->size = max(3.f, float (b->size - 0.25));
+		if (b->size == 3) {
+		  boidUpdate[index].push_back(b);
+		}
+	    }
         }
     }
 }
@@ -126,8 +141,10 @@ void ofApp::draw() {
                 }
                 break;
             case 4:{
-                ofSetColor(ofColor::azure);
-                contourFinder.getPolyline(0).draw();
+                ofSetColor(ofColor::green);
+		for (int i = 0; i < contourFinder.getContours().size(); i++){
+		  contourFinder.getPolyline(i).draw();
+		}
                 ofSetColor(ofColor::white);}
                 break;
             case 5:{

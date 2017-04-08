@@ -137,5 +137,5 @@
 #		(default) PROJECT_CC = (blank)
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
-PROJECT_CXX = clang++
+# PROJECT_CXX = clang++
 # PROJECT_CC = 
