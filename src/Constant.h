@@ -6,9 +6,8 @@
 //
 //
 #pragma once
-
-#define win_width 600
-#define win_height 600
+#define win_width 800
+#define win_height 800
 #define cam_width 900
 #define cam_height 900
 #define div_width 20
