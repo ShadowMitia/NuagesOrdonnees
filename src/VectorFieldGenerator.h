@@ -55,7 +55,7 @@ private:
         //ofxCv::copy(inputMat,pixelisationMat);
 
         ofxCv::resize(inputMat, pixelisationMat);
-        ofxCv::GaussianBlur(pixelisationMat, 40);
+        ofxCv::GaussianBlur(pixelisationMat, 10);
         
         //=================================================================================<<<<<<<
         cv::Sobel(pixelisationMat, inter_x, CV_32F, 1, 0, 7, 1, 0, cv::BORDER_DEFAULT);

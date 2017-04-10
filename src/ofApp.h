@@ -9,6 +9,13 @@
 #include "BoidsThread.h"
 #include "VectorFieldGenerator.h"
 
+#include "ofxFX.h"
+#include "ofxRipples.h"
+#include "ofxBounce.h"
+#include "ofxFlow.h"
+#include "ofxDisplacePixels.h"
+//#include "ofxFire.h"
+
 //constexpr int cam_width = 600;
 //constexpr int cam_height = 600;
 constexpr int image_width = cam_width / 2;
@@ -59,5 +66,10 @@ public:
     
     bool debug;
     int modeDebug;
-    
+
+    ofxRipples rip;
+    ///////////////// shader ////////////////
+    ofxFXObject shader;
+    ofVec2f tab[nbBoids];
+    int tabSize;
 };

@@ -1,3 +1,4 @@
 ofxCv
+ofxFX
 ofxGui
 ofxOpenCv
