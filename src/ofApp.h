@@ -10,11 +10,7 @@
 #include "VectorFieldGenerator.h"
 
 #include "ofxFX.h"
-#include "ofxRipples.h"
-#include "ofxBounce.h"
-#include "ofxFlow.h"
-#include "ofxDisplacePixels.h"
-//#include "ofxFire.h"
+#include "ShaderFx.h"
 
 //constexpr int cam_width = 600;
 //constexpr int cam_height = 600;
@@ -67,9 +63,12 @@ public:
     bool debug;
     int modeDebug;
 
-    ofxRipples rip;
+    //ofxRipples rip;
     ///////////////// shader ////////////////
-    ofxFXObject shader;
+    ofxBoidFx shader;
     ofVec2f tab[nbBoids];
     int tabSize;
+    ofxGravurFX gravure;
+    ofImage  imageGravure;
+    ofTexture textureGravure;
 };

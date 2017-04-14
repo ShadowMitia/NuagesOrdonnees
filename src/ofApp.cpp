@@ -47,58 +47,10 @@ void ofApp::setup() {
     ////////////////////////////////////////////////////////
     ofxCv::imitate(imageTest, imageTempMat, CV_8UC1);
     
-    rip.allocate(win_width, win_height, GL_RGBA);
     ///////////////////shader////////////////////////////////
-    shader.allocate(win_width, win_height, GL_RGBA);
-
-    string frac = STRINGIFY(
-                         uniform vec2 resolution;
-                         uniform vec2 tab[1000];
-                         uniform int tabSize;
-                         float makePoint(float x,float y,float sx,float sy){
-                             //float xx=x+sin(t*fx)*sx;
-                             //float yy=y+cos(t*fy)*sy;
-                             float xx=x+sx;
-                             float yy=y+sy;
-                             return 1.0/sqrt(xx*xx+yy*yy);
-                         }
-                         vec3 gu(vec4 a,vec4 b,float f){
-                             return mix(a.xyz,b.xyz,(f-a.w)*(1.0/(b.w-a.w)));
-                         }
-                         vec3 grad(float f){
-                             vec4 c01=vec4(0.0,0.0,0.0,0.00);
-                             vec4 c02=vec4(0.5,0.0,0.0,0.80);
-                             vec4 c03=vec4(1.0,0.0,0.0,0.95);
-                             vec4 c04=vec4(1.0,0.75,0.0,0.97);
-                             vec4 c05=vec4(1.0,1.0,1.0,1.00);
-                             return (f<c02.w)?gu(c01,c02,f):
-                             (f<c03.w)?gu(c02,c03,f):
-                             (f<c04.w)?gu(c03,c04,f):
-                             gu(c04,c05,f);
-                         }
-                         void main( void ) {
-                             vec2 p=(gl_FragCoord.xy/resolution.x)*2.0-vec2(1.0,resolution.y/resolution.x);
-                             
-                             //p=p*2.0;
-                             
-                             float x=p.x;
-                             float y=p.y;
-                             
-                             float a = 0.0;
-                             for (int i=0; i<tabSize; i++) {
-                                 a=a+makePoint(x,y,tab[i].x,tab[i].y);
-                             }
-                             vec3 a1=grad(a/2900.0);
-                             
-                             gl_FragColor = vec4(a1.y,a1.x,a1.z,1.0);
-                         }
-                         );
-    shader.setCode(frac);
-    
-    //shader.dfv[0] = ofVec2f(0, 0);
-    //shader.dfv[1] = ofVec2f((float)1/10, 0);
-    //shader.dfv[2] = ofVec2f((float)1/20, 0);
-    //shader.dfvSize = 3;
+    shader.allocate(win_width, win_height, GL_RGBA);    
+    gravure.allocate(win_width, win_height, GL_RGBA);
+  cout << "fin ===> setup";
 }
 //--------------------------------------------------------------
 void ofApp::update() {
@@ -179,9 +131,11 @@ void ofApp::update() {
         shader.dfv[i]= ofVec2f((float) vec.x, (float) vec.y);
     }
     shader.dfvSize = boidUpdate[0].size();
-    //cout << shader.dfv[3] << endl;
-    //cout << boidUpdate[0].size() << endl;
     shader.update();
+    gravure.setTexture(textureGravure,0);
+    gravure.setTexture(shader.getTexture(),1);
+    gravure.update();
+    
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
@@ -199,8 +153,11 @@ void ofApp::draw() {
                 break;
             case 2:{
                 //rip.draw(0,0);
+                ofBackground(ofColor::white);
                 shader.draw();
+                ofSetColor(ofColor::black);
                 contourFinder.getPolyline(0).draw();
+                ofSetColor(ofColor::white);
                 }
                 break;
             case 3:{
@@ -217,11 +174,13 @@ void ofApp::draw() {
                 ofSetColor(ofColor::white);}
                 break;
             case 5:{
-                ofImage image, drawImage;
+                /*ofImage image, drawImage;
                 ofxCv::toOf(vectorField.getPixelisationMat(), image);
                 image.update();
                 drawImage = image;
-                drawImage.draw(0, 0);
+                drawImage.draw(0, 0);*/ //<<==== code pour la pixelisation
+                
+                gravure.draw();
             }
             break;
             case 6:{
