@@ -50,7 +50,18 @@ void ofApp::setup() {
     ///////////////////shader////////////////////////////////
     shader.allocate(win_width, win_height, GL_RGBA);    
     gravure.allocate(win_width, win_height, GL_RGBA);
-  cout << "fin ===> setup";
+    shader.update();
+    ofTexture black;
+    black.allocate(win_width, win_height, GL_RGBA);
+    black.bind();
+    ofBackground(ofColor::black);
+    //ofSetColor(ofColor::black);
+    //ofDrawRectangle(0, 0, win_width, win_height);
+    black.unbind();
+    gravure.setTexture(black,0);
+    gravure.setTexture(shader.getTexture(),1);
+    gravure.update();
+  cout << "fin ===> setup" << endl;
 }
 //--------------------------------------------------------------
 void ofApp::update() {
@@ -132,7 +143,7 @@ void ofApp::update() {
     }
     shader.dfvSize = boidUpdate[0].size();
     shader.update();
-    gravure.setTexture(textureGravure,0);
+    gravure.setTexture(gravure.getTexture(),0);
     gravure.setTexture(shader.getTexture(),1);
     gravure.update();
     
@@ -179,7 +190,7 @@ void ofApp::draw() {
                 image.update();
                 drawImage = image;
                 drawImage.draw(0, 0);*/ //<<==== code pour la pixelisation
-                
+                shader.draw();
                 gravure.draw();
             }
             break;

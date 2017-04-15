@@ -30,7 +30,7 @@ public:
                                        return 1.0/sqrt(xx*xx+yy*yy);
                                    }
                                    vec4 gu(vec4 a,vec4 b,float f){
-                                       if(b.w==2.00)
+                                       if(b.w==1.00)
                                            return vec4(mix(a.xyz,b.xyz,(f-a.w)*(1.0/(b.w-a.w))),0.0);
                                        else {
                                            return vec4(mix(a.xyz,b.xyz,(f-a.w)*(1.0/(b.w-a.w))),a.w);
@@ -165,21 +165,12 @@ public:
                                    varying vec2 texCoordVarying;
                                    
                                    void main(){
-                                       
                                        vec4 image = texture2DRect(tex0, texCoordVarying);
-                                       vec4 mask = texture2DRect(tex0, texCoordVarying);
-                                       if (mask.xyz == vec3(0.0,0.0,0.0)) {
-                                           image.a = max(0.0, image.a - 0.5);
-                                       }else image.a = min(1.0,image.a + 0.001);
+                                       vec4 mask = texture2DRect(tex1, texCoordVarying);
+                                       if (mask.a > 0.937) {image.a = image.a - 0.5;}
+                                       else{image.a = image.a + 0.259;}
+                                       gl_FragColor = image;
 
-                                       /*
-                                       //vec4 pix = texture2D(imageMask, gl_FragCoord);
-                                       if (tex1.rgb == 0.0) {
-                                           tex0.a = tex0.a - 0.5;
-                                       }
-                                       else{
-                                           tex0.a = tex0.a + 0.1;
-                                       }*/
                                    }
                                    );
         vertexShader = STRINGIFY(
