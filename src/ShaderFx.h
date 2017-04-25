@@ -178,7 +178,7 @@ public:
         fragmentShader = STRINGIFY(
                                    uniform sampler2DRect tex0;
                                    uniform sampler2DRect tex1;
-                                   uniform bool time;
+                                   uniform int time;
                                    varying vec2 texCoordVarying;
             
                                    void main(){
@@ -186,12 +186,14 @@ public:
                                        vec4 mask = texture2DRect(tex1, texCoordVarying);
                                        if (mask == vec4(0.0,0.0,0.0,1.0)) {
                                            //image.w = max(0.00,image.w - 1.0);
-                                           image.xyzw = vec4(0.0,0.0,0.0,1.0);
+                                           image.xyzw = vec4(1.0,1.0,1.0,0.0);
                                            //image = mask;
                                             }
                                        else{
-                                           image.w = min(1.0,image.w + 1.00);// <<< ici tim
-                                           image.xyzw = vec4(0.0,pow(image.y+0.01,1.0),0.0,1.0);
+                                           if (time == 1) {
+                                               //image.w = min(1.0,image.w + 1.00);// <<< ici tim 0.0038
+                                               image.xyzw = vec4(1.0,1.0,1.0,image.a);
+                                                }
                                            }
                                        gl_FragColor = vec4(image.x, image.y, image.z, image.w);
                                    }
@@ -277,6 +279,4 @@ public:
         
         bUpdate = false;
     };
-
-    
 };

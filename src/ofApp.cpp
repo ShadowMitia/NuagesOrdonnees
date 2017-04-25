@@ -3,6 +3,7 @@
 void ofApp::setup() {
     debug = true;
     modeDebug = 2;
+    gravure.modeTime=1;
     ///////////////////////////Caméra///////////////////////
     imageTest.load("grayGrad8.jpg");
     //imageTest.load("666.png");
@@ -155,7 +156,7 @@ void ofApp::draw() {
     if (debug) {
         switch (modeDebug) {
             case 1:{
-                ofBackground(ofColor::orangeRed);
+                ofBackground(ofColor::violet);
                 gravure.draw();
                 //shader.draw();
                 }
@@ -250,6 +251,9 @@ void ofApp::keyPressed(int key){
             case '7':
                 modeDebug = 7;
                 break;
+            case 'l':
+                gravure.modeTime = 1;
+                break;
             case 'm':
                 ofTexture black;
                 black.bind();
@@ -260,11 +264,19 @@ void ofApp::keyPressed(int key){
                 gravure.update();
                 break;
 
+
         }
     }
 }
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
+    if (debug) {
+        switch (key) {
+        case 'l':
+                gravure.modeTime = 0;
+                break;
+        }
+    }
 
 }
 //--------------------------------------------------------------
