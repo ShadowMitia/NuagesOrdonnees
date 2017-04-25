@@ -55,12 +55,12 @@ void ofApp::setup() {
     black.allocate(win_width, win_height, GL_RGBA);
     black.bind();
     ofBackground(ofColor::black);
-    //ofSetColor(ofColor::black);
-    //ofDrawRectangle(0, 0, win_width, win_height);
     black.unbind();
     gravure.setTexture(black,0);
     gravure.setTexture(shader.getTexture(),1);
     gravure.update();
+    boidUpdateBool =true;
+    
   cout << "fin ===> setup" << endl;
 }
 //--------------------------------------------------------------
@@ -83,13 +83,16 @@ void ofApp::update() {
 
     ///////////////////////////////// End If new image ///////////////////////////////////
     
-    for (int i=0; i<contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
-        if (boidsUpdate[i].isMainThread() && !boidsUpdate[i].isThreadRunning()) {
-            boidsUpdate[i].boidsUpdate.send(boidUpdate[i]);
-            boidsUpdate[i].startThread();
-        }else cout << "NON StartBoidsThread:" << std::to_string(i) << endl;
-        boidUpdate[i].clear();
-    }
+    if (boidUpdateBool) {
+        for (int i=0; i<contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
+            if (boidsUpdate[i].isMainThread() && !boidsUpdate[i].isThreadRunning()) {
+                boidsUpdate[i].boidsUpdate.send(boidUpdate[i]);
+                boidsUpdate[i].startThread();
+            }else cout << "NON StartBoidsThread:" << std::to_string(i) << endl;
+            boidUpdate[i].clear();
+        }
+    }else boidUpdate[0].clear();
+    
     boidsReturnInital.boidsReturnInitial.send(boidReturnInitial);
     boidsReturnInital.startThread();
     
@@ -146,25 +149,20 @@ void ofApp::update() {
     gravure.setTexture(gravure.getTexture(),0);
     gravure.setTexture(shader.getTexture(),1);
     gravure.update();
-    
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
     if (debug) {
         switch (modeDebug) {
             case 1:{
-                for (int i = 0; i< totalBoids.size(); i++) {
-                    Boid2d* b = totalBoids[i];
-                    ofSetColor(b->color);
-                    ofDrawRectangle(b->position.x, b->position.y, 3,3);
-                    float lm = 10.f;
-                    ofDrawLine(b->position.x, b->position.y, b->position.x + b->velocite.x*lm, b->position.y + b->velocite.y*lm);
+                ofBackground(ofColor::orangeRed);
+                gravure.draw();
+                //shader.draw();
                 }
-                ofSetColor(ofColor::white);}
                 break;
             case 2:{
                 //rip.draw(0,0);
-                ofBackground(ofColor::white);
+                ofBackground(ofColor::orangeRed);
                 shader.draw();
                 ofSetColor(ofColor::black);
                 contourFinder.getPolyline(0).draw();
@@ -185,13 +183,14 @@ void ofApp::draw() {
                 ofSetColor(ofColor::white);}
                 break;
             case 5:{
+                ofBackground(ofColor::paleVioletRed);
                 /*ofImage image, drawImage;
                 ofxCv::toOf(vectorField.getPixelisationMat(), image);
                 image.update();
                 drawImage = image;
                 drawImage.draw(0, 0);*/ //<<==== code pour la pixelisation
-                shader.draw();
                 gravure.draw();
+                //shader.draw();
             }
             break;
             case 6:{
@@ -227,6 +226,9 @@ void ofApp::keyPressed(int key){
     }
     if (debug) {
         switch (key) {
+            case 'b':
+                boidUpdateBool=!boidUpdateBool;
+                break;
             case '1':
                 modeDebug = 1;
                 break;
@@ -248,6 +250,16 @@ void ofApp::keyPressed(int key){
             case '7':
                 modeDebug = 7;
                 break;
+            case 'm':
+                ofTexture black;
+                black.bind();
+                ofBackground(ofColor::black);
+                black.unbind();
+                gravure.setTexture(black,0);
+                gravure.setTexture(shader.getTexture(),1);
+                gravure.update();
+                break;
+
         }
     }
 }

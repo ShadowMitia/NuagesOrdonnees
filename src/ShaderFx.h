@@ -14,6 +14,9 @@
 
 class ofxBoidFx : public ofxFXObject {
 public:
+    ofVec2f         dfv[1022];
+    ofVec2f         dfv2[1022];
+    int             dfvSize;
     ofxBoidFx(){
         passes = 1;
         internalFormat = GL_RGBA;
@@ -30,16 +33,19 @@ public:
                                        return 1.0/sqrt(xx*xx+yy*yy);
                                    }
                                    vec4 gu(vec4 a,vec4 b,float f){
-                                       if(b.w==1.00)
+                                       if(b.w == 1.00 || b.w==0.20)
                                            return vec4(mix(a.xyz,b.xyz,(f-a.w)*(1.0/(b.w-a.w))),0.0);
+                                       if(b.w  == 0.7){
+                                           return vec4(mix(a.xyz,b.xyz,(f-a.w)*(1.0/(b.w-a.w))),mix(0.0,1.0,0.02));
+                                       }
                                        else {
-                                           return vec4(mix(a.xyz,b.xyz,(f-a.w)*(1.0/(b.w-a.w))),a.w);
+                                           return vec4(mix(a.xyz,b.xyz,(f-a.w)*(1.0/(b.w-a.w))),1.0);
                                        }
                                    }
                                    vec4 grad(float f){
                                        vec4 c01=vec4(1.0,1.0,1.0,0.00);
-                                       vec4 c02=vec4(1.0,1.0,1.0,0.40);
-                                       vec4 c03=vec4(0.75,1.0,0.0,0.70);
+                                       vec4 c02=vec4(1.0,1.0,1.0,0.20);
+                                       vec4 c03=vec4(0.50,1.0,0.0,0.70);
                                        vec4 c04=vec4(0.0,1.0,0.0,0.80);
                                        vec4 c05=vec4(0.0,0.5,0.0,0.97);
                                        vec4 c06=vec4(0.0,0.0,0.0,1.00);
@@ -60,12 +66,22 @@ public:
                                            a=a+makePoint(x,y,tab[i].x,tab[i].y);
                                        }
                                        vec4 a1=grad(a/2500.0);
-                                       gl_FragColor = vec4(a1.x,a1.y,a1.z,a1.w);
+                                       if (a1.xyz == vec3(1.0,1.0,1.0)) {
+                                           gl_FragColor = vec4(1.0,0.0,1.0,1.0); // ext
+                                       }
+                                       else if (a1.y < 0.5){
+                                           gl_FragColor = vec4(0.0,0.0,0.0,1.0); // centre
+                                       }
+                                       else{
+                                           gl_FragColor = vec4(0.0,1.0,1.0,1.0); // vert
+
+                                       }
+                                       //gl_FragColor = vec4(a1.x,a1.y,a1.z,a1.w);
                                    }
                                 );
         
     }
-    void begin(int _texNum = 0 ) {
+    void begin(int _texNum = 0) {
         if ((_texNum < nTextures) && ( _texNum >= 0)){
             ofPushStyle();
             ofPushMatrix();
@@ -153,24 +169,31 @@ public:
         bUpdate = false;
     };
 };
-
 class ofxGravurFX : public ofxFXObject{
 public:
+    int modeTime;
     ofxGravurFX(){
         passes = 1;
         internalFormat = GL_RGBA;
         fragmentShader = STRINGIFY(
                                    uniform sampler2DRect tex0;
                                    uniform sampler2DRect tex1;
+                                   uniform bool time;
                                    varying vec2 texCoordVarying;
-                                   
+            
                                    void main(){
                                        vec4 image = texture2DRect(tex0, texCoordVarying);
                                        vec4 mask = texture2DRect(tex1, texCoordVarying);
-                                       if (mask.a > 0.937) {image.a = image.a - 0.5;}
-                                       else{image.a = image.a + 0.259;}
-                                       gl_FragColor = image;
-
+                                       if (mask == vec4(0.0,0.0,0.0,1.0)) {
+                                           //image.w = max(0.00,image.w - 1.0);
+                                           image.xyzw = vec4(0.0,0.0,0.0,1.0);
+                                           //image = mask;
+                                            }
+                                       else{
+                                           image.w = min(1.0,image.w + 1.00);// <<< ici tim
+                                           image.xyzw = vec4(0.0,pow(image.y+0.01,1.0),0.0,1.0);
+                                           }
+                                       gl_FragColor = vec4(image.x, image.y, image.z, image.w);
                                    }
                                    );
         vertexShader = STRINGIFY(
@@ -193,6 +216,67 @@ public:
             textures[_texNum].end();
         }
     };
-    
+    void update(){
+        ofPushStyle();
+        ofSetColor(255,255);
+        
+        // This process is going to be repeated as many times passes variable specifies
+        for(int pass = 0; pass < passes; pass++) {
+            
+            // All the processing is done on the pingPong ofxSwapBuffer (basicaly two ofFbo that have a swap() funtion)
+            pingPong.dst->begin();
+            
+            ofClear(0,0);
+            ofDisableAlphaBlending(); // Defer alpha blending until .draw() to keep transparencies clean.
+            shader.begin();
+            
+            // The other ofFbo of the ofxSwapBuffer can be accessed by calling the unicode "backbuffer"
+            // This is usually used to access "the previous pass", or the original frame for the first pass.
+            if (pass == 0 && nTextures >= 1){
+                shader.setUniformTexture("backbuffer", textures[0].getTexture(), 0);
+            } else {
+                shader.setUniformTexture("backbuffer", pingPong.src->getTexture(), 0);
+            }
+            
+            // All the necessary textures are provided to the shader in this loop
+            for( int i = 0; i < nTextures; i++){
+                string texName = "tex" + ofToString(i);
+                shader.setUniformTexture(texName.c_str(), textures[i].getTexture(), i+1 );
+                string texRes = "size" + ofToString(i);
+                shader.setUniform2f(texRes.c_str() , (float)textures[i].getWidth(), (float)textures[i].getHeight());
+            }
+            
+            // There are some standard variables that are passes to the shaders. These follow the names used by
+            // Ricardo Caballero's webGL Sandbox http://mrdoob.com/projects/glsl_sandbox/ and
+            // ShaderToy by Inigo Quilez http://www.iquilezles.org/apps/shadertoy/ webGL interactive GLSL editors.
+            shader.setUniform1f("time", ofGetElapsedTimef() );
+            shader.setUniform2f("size", (float)width, (float)height);
+            shader.setUniform2f("resolution", (float)width, (float)height);
+            shader.setUniform2f("mouse", (float)ofGetMouseX()/width, (float)ofGetMouseY()/height);
+            shader.setUniform1i("time", (int) modeTime);
+            injectUniforms();
+            
+            // renderFrame() is a built-in funtion of ofxFXObject that only draws a white box that
+            // functions as a frame where the textures can rest.
+            // If you want to distort the points of a texture, you probably want to re-define the renderFrame funtion.
+            renderFrame();
+            
+            shader.end();
+            
+            pingPong.dst->end();
+            
+            // Swap the ofFbos. Now dst is src and src is dst. Each iteration writes to
+            // dst and uses src as a backbuffer, where the previous frame is kept.
+            pingPong.swap();
+        }
+        
+        pingPong.swap(); // After the loop the finished render will be at the src ofFbo of the ofxSwapBuffer
+        // this extra swap() call will put it on the dst one. Which sounds more reasonable...
+        
+        ofPopStyle();
+        
+        bUpdate = false;
+    };
+
     
 };

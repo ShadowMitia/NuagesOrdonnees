@@ -71,4 +71,6 @@ public:
     ofxGravurFX gravure;
     ofImage  imageGravure;
     ofTexture textureGravure;
+    
+    bool  boidUpdateBool;
 };
