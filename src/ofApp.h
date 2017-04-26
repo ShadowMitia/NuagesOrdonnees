@@ -12,11 +12,6 @@
 #include "ofxFX.h"
 #include "ShaderFx.h"
 
-//constexpr int cam_width = 600;
-//constexpr int cam_height = 600;
-constexpr int image_width = cam_width / 2;
-constexpr int image_height = cam_height / 2;
-
 class ofApp : public ofBaseApp {
 
 public:

@@ -6,13 +6,15 @@
 //
 //
 #pragma once
-#define win_width 800
-#define win_height 800
-#define cam_width 900
-#define cam_height 900
-#define div_width 20
-#define div_height 20
-#define divGrad_width 4
-#define divGrad_height 4
-#define nbThreadBoids 4
-#define nbBoids (win_width/div_width) * (win_height/div_height)
+constexpr int win_width = 800;
+constexpr int win_height = 800;
+constexpr int cam_width = 900;
+constexpr int cam_height = 900;
+constexpr int div_width = 20;
+constexpr int div_height = 20;
+constexpr int divGrad_width = 4;
+constexpr int divGrad_height = 4;
+constexpr int nbThreadBoids = 4;
+constexpr int nbBoids = (win_width/div_width) * (win_height/div_height);
+constexpr int image_width = cam_width / 2;
+constexpr int image_height = cam_height / 2;
