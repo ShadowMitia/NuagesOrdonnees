@@ -10,11 +10,6 @@ void ofApp::setup() {
   gui.add(maxArea.setup("maxArea", 0, 1, 10000));
   gui.add(threshold.setup("threshold", 0, 0, 100));
 
-
-  
-  debug = true;
-  modeDebug = 2;
-
 #if USE_KINECT
   // Kinect stuff
   bool opened = kinect.open(0);
@@ -36,7 +31,7 @@ void ofApp::setup() {
   ///////////////////////////VectorField//////////////////
   vectorField.setup();
   ///////////////////////////Flock2d//////////////////////
-  flock.setBounds(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+  flock.setBounds(0, 0, win_width, win_height);
   flock.setBoundmode(0);
   flock.isVectorField=true;
   Flock2d *_Ptr = flock._Ptr;
@@ -69,11 +64,6 @@ void ofApp::setup() {
     
   ////////////////////////////////////////////////////////
   ofxCv::imitate(imageTest, imageTempMat, CV_8UC1);
-    
-  ///////////////////shader////////////////////////////////
-  shader.allocate(win_width, win_height, GL_RGBA);    
-  shader.update();
-    
 
   ///////////////////shader////////////////////////////////
   shader.allocate(win_width, win_height, GL_RGBA);    
@@ -90,7 +80,8 @@ void ofApp::setup() {
     gravure.setTexture(black,0);
     gravure.setTexture(shader.getTexture(),1);
     gravure.update();
-  */
+    */
+  
   boidUpdateBool =true;
 
     
@@ -105,35 +96,30 @@ void ofApp::update() {
   contourFinder.setMaxAreaRadius(maxArea);
   contourFinder.setThreshold(threshold);
 
-  flock.setBounds(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
-
   
   ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()) + "contours: " + std::to_string(contourFinder.size()) + "\n");
 
 #if USE_KINECT
   kinect.update();
 
-  kinectTex.loadData(kinect.getDepthPixels());
 
-  std::cout << "Depth: " << kinectTex.getWidth() << " " << kinectTex.getHeight() << "\n";
   
   if (kinect.isFrameNew()) {
+      kinectTex.loadData(kinect.getDepthPixels());
 #endif
     //////////////////////////////////// If new image /////////////////////////////////////
 #if USE_KINECT
-    ofImage img;
     imageTemp.setFromPixels(kinect.getDepthPixels());
     imageTemp.setImageType(OF_IMAGE_GRAYSCALE);
     imageTemp.update();
-    imageTemp.resize(1920, 1080);
+    imageTemp.resize(win_width, win_height);
+    imageTemp.update();
 #else
     ofxCv::copyGray(imageTest, imageTemp);
     //imageTemp = imageTest;
 #endif
     imageTempMat = ofxCv::toCv(imageTemp);
     ofxCv::threshold(imageTempMat, 120, false);
-
-    std::cout << "w " << imageTempMat.size().height << " " << imageTempMat.size().width << "\n";
     
     contourFinder.findContours(imageTemp);
     
@@ -226,19 +212,18 @@ void ofApp::update() {
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
-
-        ofBackground(ofColor::orange);
+      
       //MaskRGB.draw();
       //shader.draw();
       MaskAlpha.draw();
       ofSetColor(ofColor::white);
 
-      /*
+      
       for (int i=0; i<boidUpdate[0].size(); i++) {
 	Boid2d* b = boidUpdate[0].at(i);
 	ofDrawCircle(b->position, 5);
       }
-      */
+      
       
       /*
     imageTemp.draw(0, 0);
