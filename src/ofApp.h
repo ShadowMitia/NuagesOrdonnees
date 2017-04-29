@@ -63,7 +63,9 @@ public:
     ofxBoidFx shader;
     ofVec2f tab[nbBoids];
     int tabSize;
-    ofxGravurFX gravure;
+    ofxMaskRGB MaskRGB;
+    ofxMaskAlpha MaskAlpha;
+    
     ofImage  imageGravure;
     ofTexture textureGravure;
     

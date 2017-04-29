@@ -3,7 +3,7 @@
 void ofApp::setup() {
     debug = true;
     modeDebug = 2;
-    gravure.modeTime=1;
+    MaskRGB.modeTime=1;
     ///////////////////////////Caméra///////////////////////
     imageTest.load("grayGrad8.jpg");
     //imageTest.load("666.png");
@@ -50,16 +50,20 @@ void ofApp::setup() {
     
     ///////////////////shader////////////////////////////////
     shader.allocate(win_width, win_height, GL_RGBA);    
-    gravure.allocate(win_width, win_height, GL_RGBA);
+    MaskRGB.allocate(win_width, win_height, GL_RGBA);
+    MaskAlpha.allocate(win_width, win_height, GL_RGBA);
+    /*
     shader.update();
     ofTexture black;
     black.allocate(win_width, win_height, GL_RGBA);
+    
     black.bind();
     ofBackground(ofColor::black);
     black.unbind();
     gravure.setTexture(black,0);
     gravure.setTexture(shader.getTexture(),1);
     gravure.update();
+     */
     boidUpdateBool =true;
     
   cout << "fin ===> setup" << endl;
@@ -147,27 +151,29 @@ void ofApp::update() {
     }
     shader.dfvSize = boidUpdate[0].size();
     shader.update();
-    gravure.setTexture(gravure.getTexture(),0);
-    gravure.setTexture(shader.getTexture(),1);
-    gravure.update();
+    MaskRGB.setTexture(MaskRGB.getTexture(),0);
+    MaskRGB.setTexture(shader.getTexture(),1);
+    MaskRGB.update();
+    MaskAlpha.setTexture(MaskRGB.getTexture(), 1);
+    MaskAlpha.setTexture(shader.getTexture(), 0);
+    MaskAlpha.update();
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
     if (debug) {
         switch (modeDebug) {
             case 1:{
-                ofBackground(ofColor::violet);
-                gravure.draw();
+                ofBackground(ofColor::orange);
+                //MaskRGB.draw();
                 //shader.draw();
+                MaskAlpha.draw();
                 }
                 break;
             case 2:{
                 //rip.draw(0,0);
-                ofBackground(ofColor::orangeRed);
+                ofBackground(ofColor::orange);
                 shader.draw();
-                ofSetColor(ofColor::black);
-                contourFinder.getPolyline(0).draw();
-                ofSetColor(ofColor::white);
+
                 }
                 break;
             case 3:{
@@ -190,7 +196,7 @@ void ofApp::draw() {
                 image.update();
                 drawImage = image;
                 drawImage.draw(0, 0);*/ //<<==== code pour la pixelisation
-                gravure.draw();
+                MaskRGB.draw();
                 //shader.draw();
             }
             break;
@@ -252,16 +258,16 @@ void ofApp::keyPressed(int key){
                 modeDebug = 7;
                 break;
             case 'l':
-                gravure.modeTime = 1;
+                MaskRGB.modeTime = 1;
                 break;
             case 'm':
                 ofTexture black;
                 black.bind();
                 ofBackground(ofColor::black);
                 black.unbind();
-                gravure.setTexture(black,0);
-                gravure.setTexture(shader.getTexture(),1);
-                gravure.update();
+                MaskRGB.setTexture(black,0);
+                MaskRGB.setTexture(shader.getTexture(),1);
+                MaskRGB.update();
                 break;
 
 
@@ -273,7 +279,7 @@ void ofApp::keyReleased(int key){
     if (debug) {
         switch (key) {
         case 'l':
-                gravure.modeTime = 0;
+                MaskRGB.modeTime = 0;
                 break;
         }
     }
