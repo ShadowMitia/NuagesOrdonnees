@@ -36,7 +36,7 @@ void ofApp::setup() {
         boidsUpdate[i].BoidsSetup(flock.gradientVectorField_Ptr);
     }
     
-    
+    cout << "total boids" << totalBoids.size() << endl;
     /////////////////////////contourFinder/////////////////
     contourFinder.setMinAreaRadius(6);
     contourFinder.setMaxAreaRadius(1000);
@@ -104,7 +104,7 @@ void ofApp::update() {
     boidReturnInitial.clear();
     for (int x = 0; x<(win_width/div_width); x++) {
         for (int y = 0; y<(win_height/div_height); y++) {
-            Boid2d* b = totalBoids[x * win_width/div_width + y];
+            Boid2d* b = totalBoids[y * win_width/div_width + x];
             bool active = false;
 	    bool insideHole = false;
 	    int index = -1;
@@ -147,9 +147,15 @@ void ofApp::update() {
         ofVec2f vec =ofVec2f(((float) b->position.x/win_width)*2-1, ((float) b->position.y/win_width)*2-win_height/win_width);
         
         //((b->position)/win_width)*2.0 - ofVec2f(1, win_height/win_width);
+        //shader.dfv[i]= ofVec2f((float) vec.x, (float) vec.y); << ici
+    }
+    for (int i=0; i<totalBoids.size(); i++) {
+        Boid2d* b = totalBoids.at(i);
+        ofVec2f vec =ofVec2f(((float) b->position.x/win_width)*2-1, ((float) b->position.y/win_width)*2-win_height/win_width);
         shader.dfv[i]= ofVec2f((float) vec.x, (float) vec.y);
     }
-    shader.dfvSize = boidUpdate[0].size();
+    shader.dfvSize = totalBoids.size();
+    //shader.dfvSize = boidUpdate[0].size();
     shader.update();
     MaskRGB.setTexture(MaskRGB.getTexture(),0);
     MaskRGB.setTexture(shader.getTexture(),1);
@@ -163,7 +169,7 @@ void ofApp::draw() {
     if (debug) {
         switch (modeDebug) {
             case 1:{
-                ofBackground(ofColor::orange);
+                ofBackground(ofColor::violet);
                 //MaskRGB.draw();
                 //shader.draw();
                 MaskAlpha.draw();
