@@ -3,8 +3,13 @@
 #include "Constant.h"
 //========================================================================
 int main( ){
-  ofSetupOpenGL(win_width,win_height,OF_WINDOW);			// <-------- setup the GL context
-  // this kicks off the running of my app
+    ofGLFWWindowSettings settings;
+    settings.setGLVersion(3, 2); //we define the OpenGL version we want to use
+    settings.width = 1024;
+    settings.height = 768;
+    ofCreateWindow(settings);
+
+    // this kicks off the running of my app
   // can be OF_WINDOW or OF_FULLSCREEN
   // pass in width and height too:
   ofRunApp(new ofApp());
