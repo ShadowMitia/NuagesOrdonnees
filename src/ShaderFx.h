@@ -292,7 +292,7 @@ public:
                                        vec4 image = texture2DRect(tex0, texCoordVarying);
                                        vec4 mask = texture2DRect(tex1, texCoordVarying);
                                        
-                                       if (image.rgba == vec4(0.0,0.0,0.0,0.0) || image.rgba == vec4(0.0,1.0,1.0,1.0)){ gl_FragColor = vec4(1.0,1.0,1.0,mask.r);}
+                                       if (image.rgba == vec4(0.0,0.0,0.0,0.0) || image.rgba == vec4(0.0,1.0,1.0,1.0)){ gl_FragColor = vec4(0.0,0.0,0.0,mask.r);}
                                        else { gl_FragColor = image;};
                                            
                                    }
