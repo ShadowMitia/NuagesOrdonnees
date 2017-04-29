@@ -1,35 +1,37 @@
 #include "ofApp.h"
 //--------------------------------------------------------------
 void ofApp::setup() {
+
   // gui
 
   gui.setup();
 
-  gui.add(minArea.setup("minArea", 0, 1, 600));
-  gui.add(maxArea.setup("maxArea", 0, 1, 600));
-  gui.add(threshold.setup("threshold", 0, 0, 1000));
+  gui.add(minArea.setup("minArea", 0, 1, 5000));
+  gui.add(maxArea.setup("maxArea", 0, 1, 10000));
+  gui.add(threshold.setup("threshold", 0, 0, 100));
 
 
   
   debug = true;
   modeDebug = 2;
-  gravure.modeTime=1;
-  gravure._i=0;
 
-  #if USE_KINECT
+#if USE_KINECT
   // Kinect stuff
   bool opened = kinect.open(0);
   if (!opened) {
     std::cout << "Kinect is not opening\n";
   }
 
-  #else
+#else
   ///////////////////////////CamŽra///////////////////////
   imageTest.load("grayGrad8.jpg");
   //imageTest.load("666.png");
 
   imageTest.resize(win_width, win_height);
-  #endif
+#endif
+  debug = true;
+  modeDebug = 2;
+  MaskRGB.modeTime=1;
 
   ///////////////////////////VectorField//////////////////
   vectorField.setup();
@@ -60,8 +62,8 @@ void ofApp::setup() {
 
   /////////////////////////contourFinder/////////////////
 
-  contourFinder.setUseTargetColor(true);
-  contourFinder.setTargetColor(ofColor::white);
+  //contourFinder.setUseTargetColor(false);
+  //contourFinder.setTargetColor(ofColor::white);
   contourFinder.setAutoThreshold(false);
   contourFinder.setFindHoles(true);
     
@@ -70,17 +72,27 @@ void ofApp::setup() {
     
   ///////////////////shader////////////////////////////////
   shader.allocate(win_width, win_height, GL_RGBA);    
-  gravure.allocate(win_width, win_height, GL_RGBA);
   shader.update();
     
-  black.allocate(win_width, win_height, GL_RGBA);
-  black.bind();
-  ofBackground(ofColor::black);
-  black.unbind();
-  gravure.setTexture(black,0);
-  gravure.setTexture(shader.getTexture(),1);
-  gravure.update();
+
+  ///////////////////shader////////////////////////////////
+  shader.allocate(win_width, win_height, GL_RGBA);    
+  MaskRGB.allocate(win_width, win_height, GL_RGBA);
+  MaskAlpha.allocate(win_width, win_height, GL_RGBA);
+  /*
+    shader.update();
+    ofTexture black;
+    black.allocate(win_width, win_height, GL_RGBA);
+    
+    black.bind();
+    ofBackground(ofColor::black);
+    black.unbind();
+    gravure.setTexture(black,0);
+    gravure.setTexture(shader.getTexture(),1);
+    gravure.update();
+  */
   boidUpdateBool =true;
+
     
   cout << "fin ===> setup" << endl;
 
@@ -93,11 +105,12 @@ void ofApp::update() {
   contourFinder.setMaxAreaRadius(maxArea);
   contourFinder.setThreshold(threshold);
 
-  
-  if (debug) ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate())+ "  Mode debug: " + std::to_string(modeDebug));
-  else ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()));
+  flock.setBounds(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
 
-  #if USE_KINECT
+  
+  ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()) + "contours: " + std::to_string(contourFinder.size()) + "\n");
+
+#if USE_KINECT
   kinect.update();
 
   kinectTex.loadData(kinect.getDepthPixels());
@@ -107,18 +120,18 @@ void ofApp::update() {
   if (kinect.isFrameNew()) {
 #endif
     //////////////////////////////////// If new image /////////////////////////////////////
-    #if USE_KINECT
+#if USE_KINECT
     ofImage img;
     imageTemp.setFromPixels(kinect.getDepthPixels());
     imageTemp.setImageType(OF_IMAGE_GRAYSCALE);
     imageTemp.update();
     imageTemp.resize(1920, 1080);
-    #else
+#else
     ofxCv::copyGray(imageTest, imageTemp);
     //imageTemp = imageTest;
-    #endif
+#endif
     imageTempMat = ofxCv::toCv(imageTemp);
-    ofxCv::threshold(imageTempMat, 180, false);
+    ofxCv::threshold(imageTempMat, 120, false);
 
     std::cout << "w " << imageTempMat.size().height << " " << imageTempMat.size().width << "\n";
     
@@ -196,160 +209,105 @@ void ofApp::update() {
     }
     shader.dfvSize = boidUpdate[0].size();
     shader.update();
-    gravure.setTexture(gravure.getTexture(),0);
-    gravure.setTexture(shader.getTexture(),1);
-    gravure.update();
+
+    MaskRGB.setTexture(MaskRGB.getTexture(),0);
+    MaskRGB.setTexture(shader.getTexture(),1);
+    MaskRGB.update();
+    MaskAlpha.setTexture(MaskRGB.getTexture(), 1);
+    MaskAlpha.setTexture(shader.getTexture(), 0);
+    MaskAlpha.update();
+
+
 #if USE_KINECT
   }
 #endif
+
+  
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
-  if (debug) {
-    switch (modeDebug) {
-    case 1:{
-      ofBackground(ofColor::violet);
-      gravure.draw();
-      shader.draw();
-    }
-      break;
-    case 2:{
-      //rip.draw(0,0);
-      ofBackground(ofColor::orangeRed);
-      shader.draw();
-      ofSetColor(ofColor::black);
-      if (contourFinder.size() > 0) {
-	contourFinder.getPolyline(0).draw();
-      }
-      ofSetColor(ofColor::white);
-    }
-      break;
-    case 3:{
-      //ofImage image = imageTest;
-      imageTest.update();
-      imageTest.draw(0, 0);
-    }
-      break;
-    case 4:{
-      ofSetColor(ofColor::green);
-      for (int i = 0; i < contourFinder.getContours().size(); i++){
-	contourFinder.getPolyline(i).draw();
-      }
-      ofSetColor(ofColor::white);}
-      break;
-    case 5:{
-      ofBackground(ofColor::paleVioletRed);
-      /*ofImage image, drawImage;
-	ofxCv::toOf(vectorField.getPixelisationMat(), image);
-	image.update();
-	drawImage = image;
-	drawImage.draw(0, 0);*/ //<<==== code pour la pixelisation
-      gravure.draw();
+
+        ofBackground(ofColor::orange);
+      //MaskRGB.draw();
       //shader.draw();
-    }
-      break;
-    case 6:{
-      ofImage image = imageTest;
-      image.update();
-      image.draw(0, 0);
-    ofSetColor(ofColor::red);
-      for (int i=0; i<vectorField.gradientVectorField_Ptr->size(); i++) {
-	for (int j=0; j<vectorField.gradientVectorField_Ptr->at(i).size(); j++) {
-	  int _x = 10*vectorField.gradientVectorField_Ptr->at(i).at(j).x;
-	  int _y = 10*vectorField.gradientVectorField_Ptr->at(i).at(j).y;
-	  ofDrawLine(i * divGrad_width, j*divGrad_height, i*divGrad_width + _x, j*divGrad_height + _y);
-	}
-      }
+      MaskAlpha.draw();
       ofSetColor(ofColor::white);
-    }
-      break;
-    case 7:{
-      for (int i = 0; i< totalBoids.size(); i++) {
-	Boid2d* b = totalBoids[i];
-	ofSetColor(b->color);
-	ofDrawRectangle(b->position.x - b->size/2, b->position.y - b->size/2, b->size,b->size);
+
+      /*
+      for (int i=0; i<boidUpdate[0].size(); i++) {
+	Boid2d* b = boidUpdate[0].at(i);
+	ofDrawCircle(b->position, 5);
       }
-      ofSetColor(ofColor::white);
+      */
+      
+      /*
+    imageTemp.draw(0, 0);
+    ofSetColor(ofColor::blue);
+      */
+    if (contourFinder.size() > 0) {
+      contourFinder.getPolyline(0).draw();
     }
-      break;
+      
+    gui.draw();
+  }
+  //--------------------------------------------------------------
+  void ofApp::keyPressed(int key){
+    if (key == ' ') {
+      debug = !debug;
     }
-  }
+    if (debug) {
+      switch (key) {
+      case 'b':
+	boidUpdateBool=!boidUpdateBool;
+	break;
+      case '1':
+	modeDebug = 1;
+	break;
+      case '2':
+	modeDebug = 2;
+	break;
+      case '3':
+	modeDebug = 3;
+	break;
+      case '4':
+	modeDebug = 4;
+	break;
+      case '5':
+	modeDebug = 5;
+	break;
+      case '6':
+	modeDebug = 6;
+	break;
+      case '7':
+	modeDebug = 7;
+	break;
+      case 'l':
+	MaskRGB.modeTime = 1;
+	break;
+      case 'm':
+	ofTexture black;
+	black.bind();
+	ofBackground(ofColor::black);
+	black.unbind();
+	MaskRGB.setTexture(black,0);
+	MaskRGB.setTexture(shader.getTexture(),1);
+	MaskRGB.update();
+	break;
 
-
-  //imageTemp.draw(0, 0);
-  //ofSetColor(ofColor::blue);
-  //if (contourFinder.size() > 0) {
-  //  contourFinder.getPolyline(0).draw();
-  //} else {
-  //  std::cout << "Pas de contour\n";
-  //}
-  gui.draw();
-}
-//--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-  if (key == ' ') {
-    debug = !debug;
-  }
-  if (debug) {
-    switch (key) {
-    case 'b':
-      boidUpdateBool=!boidUpdateBool;
-      break;
-    case '1':
-      modeDebug = 1;
-      break;
-    case '2':
-      modeDebug = 2;
-      break;
-    case '3':
-      modeDebug = 3;
-      break;
-    case '4':
-      modeDebug = 4;
-      break;
-    case '5':
-      modeDebug = 5;
-      break;
-    case '6':
-      modeDebug = 6;
-      break;
-    case '7':
-      modeDebug = 7;
-      break;
-    case 'l':
-      gravure.modeTime = 1;
-      break;
-    case 'm':
-      black.bind();
-      ofBackground(ofColor::black);
-      black.unbind();
-      gravure.setTexture(black,0);
-      gravure.setTexture(shader.getTexture(),1);
-      gravure.update();
-      break;
-    case (OF_KEY_LEFT):
-      gravure._i+=0.01;
-      cout << "i: " << gravure._i << "\n";
-      break;
-    case (OF_KEY_RIGHT):
-      gravure._i-=0.01;
-      cout << "i: " << gravure._i << "\n";	
-      break;
-
+      }
     }
   }
-}
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
   if (debug) {
     switch (key) {
     case 'l':
-      gravure.modeTime = 0;
+      MaskRGB.modeTime = 0;
       break;
     }
   }
-
 }
+
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
 

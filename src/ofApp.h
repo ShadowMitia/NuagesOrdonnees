@@ -63,6 +63,7 @@ public:
   ofImage imageTemp;
   cv::Mat imageTempMat;
     
+
   bool debug;
   int modeDebug;
 
@@ -71,9 +72,12 @@ public:
   ofxBoidFx shader;
   ofVec2f tab[nbBoids];
   int tabSize;
-  ofxGravurFX gravure;
   ofImage  imageGravure;
   ofTexture textureGravure;
+
+  ofxMaskRGB MaskRGB;
+  ofxMaskAlpha MaskAlpha;
+
     
   bool  boidUpdateBool;  
 
