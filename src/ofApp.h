@@ -8,9 +8,13 @@
 #include "ofxGui.h"
 #include "BoidsThread.h"
 #include "VectorFieldGenerator.h"
-
 #include "ofxFX.h"
 #include "ShaderFx.h"
+#include "ofxKinectV2.h"
+
+
+//Mettre à 1 pour avoir la Kinect 2, 0 sinon
+#define USE_KINECT 0
 
 class ofApp : public ofBaseApp {
 
@@ -30,18 +34,20 @@ public:
   void windowResized(int w, int h);
   void dragEvent(ofDragInfo dragInfo);
   void gotMessage(ofMessage msg);
+  void exit();
 
-/////////////////////////////////////////
-    Flock2d flock;
-    std::vector<Boid2d*> totalBoids;
-    BoidsUpdateThread boidsUpdate[nbThreadBoids];
-    std::vector<Boid2d*> boidUpdate[nbThreadBoids];
-    std::vector<Boid2d*> boidReturnInitial;
-    BoidsReturnInitialThread boidsReturnInital;
-    VectorFieldGenerator vectorField;
-
+  /////////////////////////////////////////
+  Flock2d flock;
+  std::vector<Boid2d*> totalBoids;
+  BoidsUpdateThread boidsUpdate[nbThreadBoids];
+  std::vector<Boid2d*> boidUpdate[nbThreadBoids];
+  std::vector<Boid2d*> boidReturnInitial;
+  BoidsReturnInitialThread boidsReturnInital;
+  VectorFieldGenerator vectorField;
+  
   // Camera stream
-  ofVideoGrabber videoStream;
+  ofxKinectV2 kinect;
+  ofTexture kinectTex;
 
   // Contour Finder
   ofxCv::ContourFinder contourFinder;
@@ -51,23 +57,35 @@ public:
   int posX = 0;
   int posY = 0;
 
-    ofImage imageTest;
-    ofImage imageTemp;
-    cv::Mat imageTempMat;
+  ofImage imageTest;
+  ofImage imageTemp;
+  cv::Mat imageTempMat;
     
-    bool debug;
-    int modeDebug;
 
-    //ofxRipples rip;
-    ///////////////// shader ////////////////
-    ofxBoidFx shader;
-    ofVec2f tab[nbBoids];
-    int tabSize;
-    ofxMaskRGB MaskRGB;
-    ofxMaskAlpha MaskAlpha;
+  bool debug;
+  int modeDebug;
+
+  //ofxRipples rip;
+  ///////////////// shader ////////////////
+  ofxBoidFx shader;
+  ofVec2f tab[nbBoids];
+  int tabSize;
+  ofImage  imageGravure;
+  ofTexture textureGravure;
+
+  ofxMaskRGB MaskRGB;
+  ofxMaskAlpha MaskAlpha;
+
     
-    ofImage  imageGravure;
-    ofTexture textureGravure;
-    
-    bool  boidUpdateBool;
+  bool  boidUpdateBool;  
+
+  ofTexture black;
+
+  ofShader boidTrail;
+
+  ofxPanel gui;
+
+  ofxFloatSlider minArea;
+  ofxFloatSlider maxArea;
+  ofxFloatSlider threshold;
 };
