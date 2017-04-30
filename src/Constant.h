@@ -6,10 +6,10 @@
 //
 //
 #pragma once
-constexpr int win_width = 900;
-constexpr int win_height = 900;
-constexpr int cam_width = 900;
-constexpr int cam_height = 900;
+constexpr int win_width = 1920;
+constexpr int win_height = 1080;
+constexpr int cam_width = 1920;
+constexpr int cam_height = 1080;
 constexpr int div_width = 20;
 constexpr int div_height = 20;
 constexpr int divGrad_width = 8;

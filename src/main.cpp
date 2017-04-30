@@ -3,7 +3,9 @@
 #include "Constant.h"
 //========================================================================
 int main( ){
-    ofSetupOpenGL(win_width,win_height,OF_WINDOW);
+
+    ofAppGlutWindow window;
+    ofSetupOpenGL(&window,win_width,win_height,OF_WINDOW);
 
     // this kicks off the running of my app
   // can be OF_WINDOW or OF_FULLSCREEN

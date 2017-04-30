@@ -22,16 +22,25 @@ public:
         internalFormat = GL_RGBA;
         fragmentShader = STRINGIFY(
                                    uniform vec2 resolution;
+				   uniform float time;
                                    uniform vec2 tab[1000];
                                    //uniform vec2 fini[1022];
                                    uniform int tabSize;
-                                   varying vec2 fake_frag_coord;
-                                   
+
                                    float makePoint(float x,float y,float sx,float sy){
                                        float xx=x+sx;
                                        float yy=y+sy;
                                        return 1.0/sqrt(xx*xx+yy*yy);
                                    }
+
+/*
+                         float makePoint(float x,float y,float fx,float fy,float sx,float sy,float t){
+                             float xx=x+sin(t*fx)*sx;
+                             float yy=y+cos(t*fy)*sy;
+                             return 1.0/sqrt(xx*xx+yy*yy);
+                         }
+
+*/
                                    vec4 gu(vec4 a,vec4 b,float f,int r){
                                        if(r == 5) { return vec4(1.0,1.0,1.0,0.0);}
                                        if(r == 0) { return vec4(0.0,1.0,1.0,1.0);}
@@ -42,7 +51,7 @@ public:
                                    }
                                    vec4 grad(float f){
                                        vec4 c01=vec4(1.0,1.0,1.0,0.00);
-                                       vec4 c02=vec4(0.0,0.0,0.0,0.699);
+                                       vec4 c02=vec4(0.0,0.0,0.0,0.10);
                                        vec4 c03=vec4(0.255,0.412,0.882,0.70);
                                        vec4 c04=vec4(0.529,0.808,0.922,0.90);
                                        vec4 c05=vec4(0.0,1.0,1.0,0.99);
@@ -54,25 +63,21 @@ public:
                                        gu(c05,c06,f,5);
                                    }
                                    void main( void ) {
-                                       vec2 p=(gl_FragCoord.xy/resolution.x)*2.0-vec2(1.0,resolution.y/resolution.x);
-                                       
+				     vec2 p = (gl_FragCoord.xy/resolution.x)*2.0-vec2(1.0, resolution.y/resolution.x);
+				     //vec2 p=(gl_FragCoord.xy/resolution.x)*2.0-vec2(1.0,resolution.y/resolution.x);
+				     //vec2 p = (gl_FragCoord/resolution)-vec2(0.5,1.0);
+					//vec2 p = gl_FragCoord;
+				     //p = p*2;
+
                                        float x=p.x;
-                                       float y=p.y;
+                                       float y=p.y*1.5;
                                        
                                        float a = 0.0;
                                        for (int i=0; i<tabSize; i++) {
-                                           a=a+makePoint(x,y,tab[i].x,tab[i].y);
+                                           a=a+makePoint(x,y,-tab[i].x,-tab[i].y);
                                        }
-                                       vec4 a1=grad(a/2500.0);/*
-                                       if (a1.xyz == vec3(1.0,1.0,1.0)) {
-                                           gl_FragColor = vec4(1.0,0.0,1.0,1.0); // ext
-                                       }
-                                       else if (a1.y < 0.5){
-                                           gl_FragColor = vec4(0.0,0.0,0.0,1.0); // centre
-                                       }
-                                       else{
-                                           gl_FragColor = vec4(0.0,1.0,1.0,1.0); // vert
-                                       }*/
+					//a=makePoint(x,y,0.5, 0.0);
+                                       vec4 a1=grad(a/7000.0);
                                        gl_FragColor = vec4(a1);
                                    }
                                 );
@@ -83,7 +88,7 @@ public:
             ofPushStyle();
             ofPushMatrix();
             textures[_texNum].begin();
-            //ofClear(0,0);
+            ofClear(0,0);
         }
     }
     void end(int _texNum = 0) {

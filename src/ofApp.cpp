@@ -193,10 +193,16 @@ void ofApp::update() {
 
     for (int i=0; i<boidUpdate[0].size(); i++) {
       Boid2d* b = boidUpdate[0].at(i);
-        
-      ofVec2f vec =ofVec2f(((float) b->position.x/win_width)*2-1, ((float) b->position.y/win_width)*2-win_height/win_width);
+       
+	//ofVec2f vec =ofVec2f(((float) b->position.x/win_width), ((float) b->position.y/win_height));
+
+      //ofVec2f vec =ofVec2f(((float) b->position.x/win_width)*2-1, ((float) b->position.y/win_width)*2-win_height/win_width);
         //((b->position)/win_width)*2.0 - ofVec2f(1, win_height/win_width);
-        shader.dfv[i]= ofVec2f((float) vec.x, (float) vec.y);
+	
+	ofVec2f vec = ofVec2f((b->position.x/win_width)*2 - 1, (b->position.y/win_height)*2 - 1);
+        
+	shader.dfv[i] = ofVec2f((float) vec.x, (float) vec.y);
+
     }
     /*
     for (int i=0; i<totalBoids.size(); i++) {
@@ -207,6 +213,10 @@ void ofApp::update() {
     shader.dfvSize = totalBoids.size();
     */
     shader.dfvSize = boidUpdate[0].size();
+    //shader.dfv[0]=ofVec2f(1.0,0.0);
+    //shader.dfv[0]=ofVec2f(0.5,0.5);
+    //shader.dfvSize = 1;
+
     shader.update();
 
     MaskRGB.setTexture(MaskRGB.getTexture(),0);
@@ -230,15 +240,17 @@ void ofApp::draw() {
         switch (modeDebug) {
             case 1:{
                 ofBackground(ofColor::violet);
-                //MaskRGB.draw();
-                //shader.draw();
                 MaskAlpha.draw();
                 }
                 break;
             case 2:{
                 //rip.draw(0,0);
-                ofBackground(ofColor::orange);
+	      ofBackground(ofColor::orange);
+	      imageTest.draw(0,0);	      
                 shader.draw();
+		for (int i = 0; i < contourFinder.getContours().size(); i++){
+		  contourFinder.getPolyline(i).draw();
+		}
 
                 }
                 break;
