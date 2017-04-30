@@ -97,6 +97,13 @@ void ofApp::setup() {
   cout << "fin ===> setup" << endl;
 
   //boidTrail.load("trail");
+
+
+  //explosion
+  time(&now);
+  explosion = false;
+  srand (time(NULL));
+  temps = rand() % 5 + 5;
 }
 //--------------------------------------------------------------
 void ofApp::update() {
@@ -232,6 +239,32 @@ void ofApp::update() {
 #endif
 
   
+  if (difftime(time(&now), mark) >= temps && explosion == false){
+	  for (int i = 0; i < boidUpdate[0].size(); i++) {
+		  boidUpdate[0][i]->setValSepa(300, 100);
+		  boidUpdate[0][i]->setValCohe(100, 300);
+		  boidUpdate[0][i]->setValAlig(10, 35);
+		  boidUpdate[0][i]->setMaxForce(3);
+		  boidUpdate[0][i]->setMaxSpeed(4);
+	  }
+	  //cout << "testA" << endl;
+	  time(&mark);
+	  explosion = true;
+  }
+  else if (difftime(time(&now), mark) >= 2 && explosion == true) {
+	  for (int i = 0; i < boidUpdate[0].size(); i++) {
+		  boidUpdate[0][i]->setValSepa(30, 10);
+		  boidUpdate[0][i]->setValCohe(10, 30);
+		  boidUpdate[0][i]->setValAlig(10, 35);
+		  boidUpdate[0][i]->setMaxForce(2);
+		  boidUpdate[0][i]->setMaxSpeed(2);
+	  }
+	  //cout << "testB" << endl;
+	  time(&mark);
+	  explosion = false;
+	  temps = rand() % 5 + 5;
+  }
+
 }
 //--------------------------------------------------------------
 void ofApp::draw() {

@@ -10,7 +10,9 @@
 #include "VectorFieldGenerator.h"
 #include "ofxFX.h"
 #include "ShaderFx.h"
-#include "ofxKinectV2.h"
+//#include "ofxKinectV2.h"
+#include "time.h"
+#include "stdlib.h"
 
 
 //Mettre à 1 pour avoir la Kinect 2, 0 sinon
@@ -45,9 +47,11 @@ public:
   BoidsReturnInitialThread boidsReturnInital;
   VectorFieldGenerator vectorField;
   
+  /*
   // Camera stream
   ofxKinectV2 kinect;
   ofTexture kinectTex;
+  */
 
   // Contour Finder
   ofxCv::ContourFinder contourFinder;
@@ -88,4 +92,10 @@ public:
   ofxFloatSlider minArea;
   ofxFloatSlider maxArea;
   ofxFloatSlider threshold;
+
+  time_t mark;
+  time_t now;
+  bool explosion;
+  int temps;
+
 };
