@@ -12,12 +12,28 @@ Project{
         name: { return FileInfo.baseName(path) }
 
         files: [
+            'src/#Boids.cpp#',
+            'src/Boids.cpp',
+            'src/Boids.cpp~',
+            'src/Boids.h',
+            'src/Boids.hpp',
+            'src/BoidsThread.h',
+            'src/Constant.h',
+            'src/Constant.h~',
+            'src/ShaderFx.h',
+            'src/VectorFieldGenerator.h',
             'src/main.cpp',
             'src/ofApp.cpp',
+            'src/ofApp.cpp~',
             'src/ofApp.h',
         ]
 
         of.addons: [
+            'ofxCv',
+            'ofxFX',
+            'ofxGui',
+            'ofxKinectV2',
+            'ofxOpenCv',
         ]
 
         // additional flags for the project. the of module sets some

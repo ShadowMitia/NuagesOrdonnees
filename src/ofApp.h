@@ -10,7 +10,7 @@
 #include "VectorFieldGenerator.h"
 #include "ofxFX.h"
 #include "ShaderFx.h"
-//#include "ofxKinectV2.h"
+#include "ofxKinectV2.h"
 #include "time.h"
 #include "stdlib.h"
 
@@ -47,11 +47,13 @@ public:
   BoidsReturnInitialThread boidsReturnInital;
   VectorFieldGenerator vectorField;
   
-  /*
+  
   // Camera stream
+#if USE_KINECT
   ofxKinectV2 kinect;
   ofTexture kinectTex;
-  */
+#endif
+  
 
   // Contour Finder
   ofxCv::ContourFinder contourFinder;
