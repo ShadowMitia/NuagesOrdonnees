@@ -9,7 +9,6 @@
 #include "ofxCv.h"
 #include "ofxOpenCv.h"
 #include "Constant.h"
-
 class VectorFieldGenerator : public ofThread {
 public:
     std::vector<std::vector<ofVec2f>> *gradientVectorField_Ptr;

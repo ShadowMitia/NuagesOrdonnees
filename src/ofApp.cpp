@@ -187,13 +187,13 @@ void ofApp::update() {
                 b->size = 20; /// attention il ne faut pas que mettre a ici car il faut que le boids soit ˆ sa position initial
                 boidReturnInitial.push_back(b);
             } else {
-		b->active = true;
-		b->color = ofColor::blueViolet;
-		b->size = max(3.f, float (b->size - 0.25));
-		if (b->size == 3) {
-		  boidUpdate[index].push_back(b);
-		}
-	    }
+                b->active = true;
+                b->color = ofColor::blueViolet;
+                b->size = max(3.f, float (b->size - 0.25));
+                if (b->size == 3) {
+                    boidUpdate[index].push_back(b);
+                    }
+            }
         }
     }
     
@@ -251,7 +251,7 @@ void ofApp::update() {
 	  time(&mark);
 	  explosion = true;
   }
-  else if (difftime(time(&now), mark) >= 2 && explosion == true) {
+  else if (difftime(time(&now), mark) >= 1 && explosion == true) {
 	  for (int i = 0; i < boidUpdate[0].size(); i++) {
 		  boidUpdate[0][i]->setValSepa(30, 10);
 		  boidUpdate[0][i]->setValCohe(10, 30);
