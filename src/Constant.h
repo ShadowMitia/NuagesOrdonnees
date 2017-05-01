@@ -7,14 +7,14 @@
 //
 #pragma once
 //Mettre à 1 pour avoir la Kinect 2, 0 sinon
-#define USE_KINECT 0
+#define USE_KINECT 1
 
-constexpr int win_width = 1920/2;
-constexpr int win_height = 1080/2;
-constexpr int cam_width = 1920/2;
-constexpr int cam_height = 1080/2;
-constexpr int div_width = 20;
-constexpr int div_height = 20;
+constexpr int win_width = 1920;
+constexpr int win_height = 1080;
+constexpr int cam_width = 1920;
+constexpr int cam_height = 1080;
+constexpr int div_width = 30;
+constexpr int div_height = 30;
 constexpr int divGrad_width = 8;
 constexpr int divGrad_height = 8;
 constexpr int nbThreadBoids = 1;

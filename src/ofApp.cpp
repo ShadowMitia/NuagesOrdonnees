@@ -1,7 +1,7 @@
 #include "ofApp.h"
 //--------------------------------------------------------------
 void ofApp::setup() {
-    Background.load("Background.jpg");
+    Background.load("Background2.jpg");
     Background.resize(win_width, win_height);
   // gui
 
@@ -153,9 +153,6 @@ void ofApp::update() {
     }
 
     ///////////////////////////////// End If new image ///////////////////////////////////
-#if USE_KINECT
-  }
-#endif
     
     if (boidUpdateBool) {
       for (int i=0; i<contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
@@ -196,12 +193,13 @@ void ofApp::update() {
 		} else {
                 b->color=ofColor::black;
 		}
-                b->size = 20; /// attention il ne faut pas que mettre a ici car il faut que le boids soit ˆ sa position initial
+		b->size = min(float (div_width -1.0), float (b->size + 6.5));
+                //b->size = div_width -1.0; /// attention il ne faut pas que mettre a ici car il faut que le boids soit ˆ sa position initial
                 boidReturnInitial.push_back(b);
             } else {
                 b->active = true;
                 b->color = ofColor::blueViolet;
-                b->size = max(0.f, float (b->size - 1.5));
+                b->size = max(0.f, float (b->size - 6.5));
                 if (b->size == 0.0) {
                     boidUpdate[index].push_back(b);
                     }
@@ -236,7 +234,9 @@ void ofApp::update() {
     //shader.dfv[0]=ofVec2f(1.0,0.0);
     //shader.dfv[0]=ofVec2f(0.5,0.5);
     //shader.dfvSize = 1;
-
+#if USE_KINECT
+  }
+#endif
     shader.update();
     MaskRGB.setTexture(MaskRGB.getTexture(),0);
     MaskRGB.setTexture(shader.getTexture(),1);
