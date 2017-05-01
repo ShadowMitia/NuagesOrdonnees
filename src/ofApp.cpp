@@ -1,14 +1,19 @@
 #include "ofApp.h"
 //--------------------------------------------------------------
 void ofApp::setup() {
-
+    Background.load("Background.jpg");
   // gui
 
   gui.setup();
 
-  gui.add(minArea.setup("minArea", 0, 1, 5000));
-  gui.add(maxArea.setup("maxArea", 0, 1, 10000));
+  gui.add(minArea.setup("minArea", 0, 1, 500));
+  gui.add(maxArea.setup("maxArea", 0, 1, 1000));
   gui.add(threshold.setup("threshold", 0, 0, 100));
+  ///////////////////shader////////////////////////////////
+  shader.allocate(win_width, win_height, GL_RGBA);    
+  MaskRGB.allocate(win_width, win_height, GL_RGBA);
+  MaskAlpha.allocate(win_width, win_height, GL_RGBA);
+    
 
 #if USE_KINECT
   // Kinect stuff
@@ -16,7 +21,9 @@ void ofApp::setup() {
   if (!opened) {
     std::cout << "Kinect is not opening\n";
   }
-
+    gui.add(minDistance.setup("minDistance", 500, 500, 6000));
+    gui.add(maxDistance.setup("maxDistance", 6000, 500, 6000));
+    
 #else
   ///////////////////////////CamŽra///////////////////////
   imageTest.load("grayGrad8.jpg");
@@ -74,10 +81,7 @@ void ofApp::setup() {
     ////////////////////////////////////////////////////////
     ofxCv::imitate(imageTest, imageTempMat, CV_8UC1);
     
-    ///////////////////shader////////////////////////////////
-    shader.allocate(win_width, win_height, GL_RGBA);    
-    MaskRGB.allocate(win_width, win_height, GL_RGBA);
-    MaskAlpha.allocate(win_width, win_height, GL_RGBA);
+
     /*
     shader.update();
     ofTexture black;
@@ -112,10 +116,14 @@ void ofApp::update() {
   contourFinder.setMaxAreaRadius(maxArea);
   contourFinder.setThreshold(threshold);
 
+
+
   
   ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()) + "contours: " + std::to_string(contourFinder.size()) + "\n");
 
 #if USE_KINECT
+  kinect.minDistance=minDistance;
+  kinect.maxDistance=maxDistance;
   kinect.update();
   if (kinect.isFrameNew()) {
       kinectTex.loadData(kinect.getDepthPixels());
@@ -144,6 +152,9 @@ void ofApp::update() {
     }
 
     ///////////////////////////////// End If new image ///////////////////////////////////
+#if USE_KINECT
+  }
+#endif
     
     if (boidUpdateBool) {
       for (int i=0; i<contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
@@ -189,8 +200,8 @@ void ofApp::update() {
             } else {
                 b->active = true;
                 b->color = ofColor::blueViolet;
-                b->size = max(3.f, float (b->size - 0.25));
-                if (b->size == 3) {
+                b->size = max(0.f, float (b->size - 1.5));
+                if (b->size == 0.0) {
                     boidUpdate[index].push_back(b);
                     }
             }
@@ -219,6 +230,7 @@ void ofApp::update() {
     }
     shader.dfvSize = totalBoids.size();
     */
+
     shader.dfvSize = boidUpdate[0].size();
     //shader.dfv[0]=ofVec2f(1.0,0.0);
     //shader.dfv[0]=ofVec2f(0.5,0.5);
@@ -233,16 +245,11 @@ void ofApp::update() {
     MaskAlpha.setTexture(shader.getTexture(), 0);
     MaskAlpha.update();
 
-
-#if USE_KINECT
-  }
-#endif
-
   
   if (difftime(time(&now), mark) >= temps && explosion == false){
 	  for (int i = 0; i < boidUpdate[0].size(); i++) {
-		  boidUpdate[0][i]->setValSepa(300, 100);
-		  boidUpdate[0][i]->setValCohe(100, 300);
+		  boidUpdate[0][i]->setValSepa(30, 100);
+		  boidUpdate[0][i]->setValCohe(60, 300);
 		  boidUpdate[0][i]->setValAlig(10, 35);
 		  boidUpdate[0][i]->setMaxForce(3);
 		  boidUpdate[0][i]->setMaxSpeed(4);
@@ -268,7 +275,14 @@ void ofApp::update() {
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
-
+    ofBackground(ofColor::violet);
+    Background.draw(0, 0);
+    MaskAlpha.draw();
+    ofSetColor(ofColor::white);
+    for (int i = 0; i< totalBoids.size(); i++) {
+        Boid2d* b = totalBoids[i];
+        ofDrawRectangle(b->position.x - b->size/2, b->position.y - b->size/2, b->size,b->size);
+    }
     if (debug) {
         switch (modeDebug) {
             case 1:{
@@ -278,8 +292,8 @@ void ofApp::draw() {
                 break;
             case 2:{
                 //rip.draw(0,0);
-	      ofBackground(ofColor::orange);
-	      imageTest.draw(0,0);	      
+	      ofBackground(ofColor::pink);
+	      //imageTest.draw(0,0);
                 shader.draw();
 		for (int i = 0; i < contourFinder.getContours().size(); i++){
 		  contourFinder.getPolyline(i).draw();
@@ -335,8 +349,11 @@ void ofApp::draw() {
                 ofSetColor(ofColor::white);
             }
         }
+        gui.draw();
+
+        
     }
-    gui.draw();
+    
   }
   //--------------------------------------------------------------
   void ofApp::keyPressed(int key){

@@ -52,6 +52,7 @@ public:
 #if USE_KINECT
   ofxKinectV2 kinect;
   ofTexture kinectTex;
+  ofxFloatSlider minDistance,maxDistance;
 #endif
   
 
@@ -99,5 +100,7 @@ public:
   time_t now;
   bool explosion;
   int temps;
+
+  ofImage Background;
 
 };

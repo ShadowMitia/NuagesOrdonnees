@@ -57,16 +57,16 @@ private:
         ofxCv::GaussianBlur(pixelisationMat, 10);
         
         //=================================================================================<<<<<<<
-        cv::Sobel(pixelisationMat, inter_x, CV_32F, 1, 0, 7, 1, 0, cv::BORDER_DEFAULT);
+        cv::Sobel(pixelisationMat, inter_x, CV_32F, 1, 0, 3, 1, 0, cv::BORDER_DEFAULT);
         inter_x.convertTo(inter_x, CV_32S);
         //=================================================================================<<<<<<<
-        cv::Sobel(pixelisationMat, inter_y, CV_32F, 0, 1, 7, 1, 0, cv::BORDER_DEFAULT);
+        cv::Sobel(pixelisationMat, inter_y, CV_32F, 0, 1, 3, 1, 0, cv::BORDER_DEFAULT);
         inter_y.convertTo(inter_y, CV_32S);
         //=================================================================================<<<<<<<
         for (unsigned int i=0; i<pixelisationMat.cols; i++) {
             for (unsigned int j=0; j<pixelisationMat.rows; j++) {
-                float x = 4*inter_x.at<int>(j, i)/(float)163200;
-                float y = 4*inter_y.at<int>(j, i)/(float)163200;
+                float x = 4*inter_x.at<int>(j, i)/(float)1020;
+                float y = 4*inter_y.at<int>(j, i)/(float)1020;
                 // si 3=>1020  si 5=>12240 si 7=> 163200
                 if (gradientVectorField[i].size()>0) {
                     gradientVectorField[i][j] = ofVec2f(x,y);
