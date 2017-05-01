@@ -6,6 +6,9 @@
 //
 //
 #pragma once
+//Mettre à 1 pour avoir la Kinect 2, 0 sinon
+#define USE_KINECT 0
+
 constexpr int win_width = 1920/2;
 constexpr int win_height = 1080/2;
 constexpr int cam_width = 1920/2;

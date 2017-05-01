@@ -2,6 +2,7 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
     Background.load("Background.jpg");
+    Background.resize(win_width, win_height);
   // gui
 
   gui.setup();
@@ -32,7 +33,7 @@ void ofApp::setup() {
   imageTest.resize(win_width, win_height);
 #endif
   debug = true;
-  modeDebug = 2;
+  modeDebug = 3;
   MaskRGB.modeTime=1;
 
   ///////////////////////////VectorField//////////////////
@@ -148,7 +149,7 @@ void ofApp::update() {
       vectorField.pix.send(imageTempMat);
       vectorField.startThread();
     } else {
-      cout << "NON StartVectorFreldThread" << endl;
+      //cout << "NON StartVectorFreldThread" << endl;
     }
 
     ///////////////////////////////// End If new image ///////////////////////////////////
@@ -237,7 +238,6 @@ void ofApp::update() {
     //shader.dfvSize = 1;
 
     shader.update();
-
     MaskRGB.setTexture(MaskRGB.getTexture(),0);
     MaskRGB.setTexture(shader.getTexture(),1);
     MaskRGB.update();
@@ -291,41 +291,26 @@ void ofApp::draw() {
                 }
                 break;
             case 2:{
-                //rip.draw(0,0);
-	      ofBackground(ofColor::pink);
-	      //imageTest.draw(0,0);
+	      ofBackground(ofColor::violet);
                 shader.draw();
 		for (int i = 0; i < contourFinder.getContours().size(); i++){
 		  contourFinder.getPolyline(i).draw();
-		}
-
+			}
                 }
                 break;
             case 3:{
-                ofImage image = imageTest;
-                image.update();
-                image.draw(0, 0);
+                ofBackground(ofColor::violet);
+                MaskRGB.draw();
                 }
                 break;
             case 4:{
-                ofSetColor(ofColor::green);
-		for (int i = 0; i < contourFinder.getContours().size(); i++){
-		  contourFinder.getPolyline(i).draw();
 		}
-                ofSetColor(ofColor::white);}
                 break;
             case 5:{
-                ofBackground(ofColor::paleVioletRed);
-                /*ofImage image, drawImage;
-                ofxCv::toOf(vectorField.getPixelisationMat(), image);
-                image.update();
-                drawImage = image;
-                drawImage.draw(0, 0);*/ //<<==== code pour la pixelisation
-                MaskRGB.draw();
-                //shader.draw();
-            }
+            	}
             break;
             case 6:{
+		ofBackground(ofColor::violet);
                 ofImage image = imageTest;
                 image.update();
                 image.draw(0, 0);
@@ -341,6 +326,7 @@ void ofApp::draw() {
             }
             break;
             case 7:{
+		ofBackground(ofColor::violet);
                 for (int i = 0; i< totalBoids.size(); i++) {
                     Boid2d* b = totalBoids[i];
                     ofSetColor(b->color);

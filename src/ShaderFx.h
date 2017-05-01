@@ -67,7 +67,7 @@ public:
                                            a=a+makePoint(x,y,-tab[i].x,-tab[i].y);
                                        }
 					//a=makePoint(x,y,0.5, 0.0);
-                                       vec4 a1=grad(a/2500.0);// ici si on voix rien 
+                                       vec4 a1=grad(a/3000.0);// ici si on voix rien
                                        gl_FragColor = vec4(a1);
                                    }
                                 );
@@ -183,7 +183,7 @@ public:
                                             }
                                        else{
                                                //image.w = min(1.0,image.w + 1.00);// <<< ici tim 0.0038
-                                            image.rgba = vec4(image.r + 0.002,0.0,0.0,1.0);
+                                            image.rgba = vec4(image.r + 0.0038,0.0,0.0,1.0); // min 0.0027
                                                
                                            }
                                        gl_FragColor = vec4(image);

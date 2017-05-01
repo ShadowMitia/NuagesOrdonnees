@@ -15,9 +15,6 @@
 #include "stdlib.h"
 
 
-//Mettre à 1 pour avoir la Kinect 2, 0 sinon
-#define USE_KINECT 0
-
 class ofApp : public ofBaseApp {
 
 public:
