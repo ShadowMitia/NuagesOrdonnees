@@ -3,10 +3,9 @@
 void ofApp::setup() {
     Background.load("Background2.jpg");
     Background.resize(win_width, win_height);
+
   // gui
-
   gui.setup();
-
   gui.add(minArea.setup("minArea", 0, 1, 500));
   gui.add(maxArea.setup("maxArea", 0, 1, 1000));
   gui.add(threshold.setup("threshold", 0, 0, 100));
@@ -14,8 +13,6 @@ void ofApp::setup() {
   shader.allocate(win_width, win_height, GL_RGBA);    
   MaskRGB.allocate(win_width, win_height, GL_RGBA);
   MaskAlpha.allocate(win_width, win_height, GL_RGBA);
-    
-
 #if USE_KINECT
   // Kinect stuff
   bool opened = kinect.open(0);
@@ -82,26 +79,8 @@ void ofApp::setup() {
     ////////////////////////////////////////////////////////
     ofxCv::imitate(imageTest, imageTempMat, CV_8UC1);
     
-
-    /*
-    shader.update();
-    ofTexture black;
-    black.allocate(win_width, win_height, GL_RGBA);
-    
-    black.bind();
-    ofBackground(ofColor::black);
-    black.unbind();
-    gravure.setTexture(black,0);
-    gravure.setTexture(shader.getTexture(),1);
-    gravure.update();
-    */
-  
-  boidUpdateBool =true;
-
     
   cout << "fin ===> setup" << endl;
-
-  //boidTrail.load("trail");
 
 
   //explosion
@@ -116,9 +95,6 @@ void ofApp::update() {
   contourFinder.setMinAreaRadius(minArea);
   contourFinder.setMaxAreaRadius(maxArea);
   contourFinder.setThreshold(threshold);
-
-
-
   
   ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()) + "contours: " + std::to_string(contourFinder.size()) + "\n");
 
@@ -142,19 +118,20 @@ void ofApp::update() {
 #endif
     imageTempMat = ofxCv::toCv(imageTemp);
     ofxCv::threshold(imageTempMat, 120, false);
-    
     contourFinder.findContours(imageTemp);
     
     if (vectorField.isMainThread() && !vectorField.isThreadRunning() && contourFinder.getContours().size() > 0) {
       vectorField.pix.send(imageTempMat);
       vectorField.startThread();
     } else {
-      //cout << "NON StartVectorFreldThread" << endl;
+      cout << "NON StartVectorFreldThread" << endl;
     }
 
     ///////////////////////////////// End If new image ///////////////////////////////////
-    
-    if (boidUpdateBool) {
+#if USE_KINECT
+  }
+#endif
+
       for (int i=0; i<contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
 	if (boidsUpdate[i].isMainThread() && !boidsUpdate[i].isThreadRunning()) {
 	  boidsUpdate[i].boidsUpdate.send(boidUpdate[i]);
@@ -162,81 +139,54 @@ void ofApp::update() {
 	}else cout << "NON StartBoidsThread:" << std::to_string(i) << endl;
 	boidUpdate[i].clear();
       }
-    }else boidUpdate[0].clear();
-    
     boidsReturnInital.boidsReturnInitial.send(boidReturnInitial);
     boidsReturnInital.startThread();
     
+#if USE_KINECT
+    if (kinect.isFrameNew()) {
+#endif
+
     boidReturnInitial.clear();
+    shader.dfvSize = 0;
     for (int x = 0; x<(win_width/div_width); x++) {
         for (int y = 0; y<(win_height/div_height); y++) {
             Boid2d* b = totalBoids[y * win_width/div_width + x];
             bool active = false;
-	    bool insideHole = false;
-	    int index = -1;
+            bool insideHole = false;
+            int index = -1;
             for (int i = 0; i< contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
                 if (contourFinder.getPolyline(i).inside(b->positionInitiale.x,b->positionInitiale.y)){
-		    index = i;
+                    index = i;
                     active = true;
                 }
-            }
-	    for (int i = 0; i< contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
-	      if (contourFinder.getHole(i) && contourFinder.getPolyline(i).inside(b->positionInitiale.x,b->positionInitiale.y)){
-		active = false;
-		insideHole = true;
+                if (contourFinder.getHole(i) && contourFinder.getPolyline(i).inside(b->positionInitiale.x,b->positionInitiale.y)){
+                    active = false;
+                    insideHole = true;
                 }
             }
             if (!active){
                 b->active = false;
-		if (insideHole) {
-		  b->color = ofColor::black;
-		} else {
-                b->color=ofColor::black;
-		}
-		b->size = min(float (div_width -1.0), float (b->size + 6.5));
-                //b->size = div_width -1.0; /// attention il ne faut pas que mettre a ici car il faut que le boids soit ˆ sa position initial
+                b->size = min(float (div_width -1.0), float (b->size + 6.5));
                 boidReturnInitial.push_back(b);
-            } else {
+            }
+            else {
                 b->active = true;
-                b->color = ofColor::blueViolet;
                 b->size = max(0.f, float (b->size - 6.5));
                 if (b->size == 0.0) {
                     boidUpdate[index].push_back(b);
+                    //// tableau du shader
+                    ofVec2f vec = ofVec2f((b->position.x/win_width)*2 - 1, (b->position.y/win_height)*2 - 1);
+                    shader.dfv[shader.dfvSize] = ofVec2f((float) vec.x, (float) vec.y);
+                    shader.dfvSize++;
                     }
             }
         }
     }
-    
 
-    for (int i=0; i<boidUpdate[0].size(); i++) {
-      Boid2d* b = boidUpdate[0].at(i);
-       
-	//ofVec2f vec =ofVec2f(((float) b->position.x/win_width), ((float) b->position.y/win_height));
-
-      //ofVec2f vec =ofVec2f(((float) b->position.x/win_width)*2-1, ((float) b->position.y/win_width)*2-win_height/win_width);
-        //((b->position)/win_width)*2.0 - ofVec2f(1, win_height/win_width);
-	
-	ofVec2f vec = ofVec2f((b->position.x/win_width)*2 - 1, (b->position.y/win_height)*2 - 1);
-        
-	shader.dfv[i] = ofVec2f((float) vec.x, (float) vec.y);
-
-    }
-    /*
-    for (int i=0; i<totalBoids.size(); i++) {
-        Boid2d* b = totalBoids.at(i);
-        ofVec2f vec =ofVec2f(((float) b->position.x/win_width)*2-1, ((float) b->position.y/win_width)*2-win_height/win_width);
-        shader.dfv[i]= ofVec2f((float) vec.x, (float) vec.y);
-    }
-    shader.dfvSize = totalBoids.size();
-    */
-
-    shader.dfvSize = boidUpdate[0].size();
-    //shader.dfv[0]=ofVec2f(1.0,0.0);
-    //shader.dfv[0]=ofVec2f(0.5,0.5);
-    //shader.dfvSize = 1;
 #if USE_KINECT
-  }
+    }
 #endif
+
     shader.update();
     MaskRGB.setTexture(MaskRGB.getTexture(),0);
     MaskRGB.setTexture(shader.getTexture(),1);
@@ -349,7 +299,6 @@ void ofApp::draw() {
     if (debug) {
       switch (key) {
       case 'b':
-	boidUpdateBool=!boidUpdateBool;
 	break;
       case '1':
 	modeDebug = 1;

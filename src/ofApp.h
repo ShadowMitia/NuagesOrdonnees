@@ -80,8 +80,6 @@ public:
   ofxMaskRGB MaskRGB;
   ofxMaskAlpha MaskAlpha;
 
-    
-  bool  boidUpdateBool;  
 
   ofTexture black;
 
