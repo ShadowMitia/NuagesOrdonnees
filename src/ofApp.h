@@ -11,12 +11,8 @@
 #include "ofxFX.h"
 #include "ShaderFx.h"
 #include "ofxKinectV2.h"
-#include "time.h"
-#include "stdlib.h"
+#include "ofxBloom.h"
 
-
-//Mettre à 1 pour avoir la Kinect 2, 0 sinon
-#define USE_KINECT 0
 
 class ofApp : public ofBaseApp {
 
@@ -52,6 +48,7 @@ public:
 #if USE_KINECT
   ofxKinectV2 kinect;
   ofTexture kinectTex;
+  ofxFloatSlider minDistance,maxDistance;
 #endif
   
 
@@ -81,9 +78,7 @@ public:
 
   ofxMaskRGB MaskRGB;
   ofxMaskAlpha MaskAlpha;
-
-    
-  bool  boidUpdateBool;  
+  ofxBloom bloom;
 
   ofTexture black;
 
@@ -95,9 +90,11 @@ public:
   ofxFloatSlider maxArea;
   ofxFloatSlider threshold;
 
-  time_t mark;
-  time_t now;
   bool explosion;
-  int temps;
+  float temps;
+
+  ofImage Background;
+
+  ofFbo fbo;
 
 };

@@ -1,22 +1,28 @@
 #include "ofApp.h"
 //--------------------------------------------------------------
 void ofApp::setup() {
+  Background.load("Background2.jpg");
+  Background.resize(win_width, win_height);
 
   // gui
-
   gui.setup();
-
-  gui.add(minArea.setup("minArea", 0, 1, 5000));
-  gui.add(maxArea.setup("maxArea", 0, 1, 10000));
+  gui.add(minArea.setup("minArea", 0, 1, 500));
+  gui.add(maxArea.setup("maxArea", 0, 1, 1000));
   gui.add(threshold.setup("threshold", 0, 0, 100));
-
+  ///////////////////shader////////////////////////////////
+  shader.allocate(win_width, win_height, GL_RGBA);    
+  MaskRGB.allocate(win_width, win_height, GL_RGBA);
+  MaskAlpha.allocate(win_width, win_height, GL_RGBA);
+  bloom.allocate(win_width, win_height, GL_RGBA);
 #if USE_KINECT
   // Kinect stuff
   bool opened = kinect.open(0);
   if (!opened) {
     std::cout << "Kinect is not opening\n";
   }
-
+    gui.add(minDistance.setup("minDistance", 500, 500, 6000));
+    gui.add(maxDistance.setup("maxDistance", 6000, 500, 6000));
+    
 #else
   ///////////////////////////CamŽra///////////////////////
   imageTest.load("grayGrad8.jpg");
@@ -25,7 +31,7 @@ void ofApp::setup() {
   imageTest.resize(win_width, win_height);
 #endif
   debug = true;
-  modeDebug = 2;
+  modeDebug = 3;
   MaskRGB.modeTime=1;
 
   ///////////////////////////VectorField//////////////////
@@ -74,36 +80,14 @@ void ofApp::setup() {
     ////////////////////////////////////////////////////////
     ofxCv::imitate(imageTest, imageTempMat, CV_8UC1);
     
-    ///////////////////shader////////////////////////////////
-    shader.allocate(win_width, win_height, GL_RGBA);    
-    MaskRGB.allocate(win_width, win_height, GL_RGBA);
-    MaskAlpha.allocate(win_width, win_height, GL_RGBA);
-    /*
-    shader.update();
-    ofTexture black;
-    black.allocate(win_width, win_height, GL_RGBA);
-    
-    black.bind();
-    ofBackground(ofColor::black);
-    black.unbind();
-    gravure.setTexture(black,0);
-    gravure.setTexture(shader.getTexture(),1);
-    gravure.update();
-    */
-  
-  boidUpdateBool =true;
-
     
   cout << "fin ===> setup" << endl;
 
-  //boidTrail.load("trail");
-
 
   //explosion
-  time(&now);
   explosion = false;
-  srand (time(NULL));
-  temps = rand() % 5 + 5;
+  temps = ofRandom(5, 11);
+
 }
 //--------------------------------------------------------------
 void ofApp::update() {
@@ -111,11 +95,12 @@ void ofApp::update() {
   contourFinder.setMinAreaRadius(minArea);
   contourFinder.setMaxAreaRadius(maxArea);
   contourFinder.setThreshold(threshold);
-
   
   ofSetWindowTitle("FPS: " + std::to_string(ofGetFrameRate()) + "contours: " + std::to_string(contourFinder.size()) + "\n");
 
 #if USE_KINECT
+  kinect.minDistance=minDistance;
+  kinect.maxDistance=maxDistance;
   kinect.update();
   if (kinect.isFrameNew()) {
       kinectTex.loadData(kinect.getDepthPixels());
@@ -125,16 +110,22 @@ void ofApp::update() {
     imageTemp.setFromPixels(kinect.getDepthPixels());
     imageTemp.setImageType(OF_IMAGE_GRAYSCALE);
     imageTemp.update();
-    imageTemp.resize(win_width, win_height);
-    imageTemp.update();
+    imageTempMat = ofxCv::toCv(imageTemp);
+    //    imageTemp.resize(win_width/2, win_height/2);
+    //    imageTemp.update();
+    //ofxCv::resize(imageTemp, imageTemp, (win_width/win_height)/2,  (win_width/win_height)/2);
 #else
     ofxCv::copyGray(imageTest, imageTemp);
     //imageTemp = imageTest;
 #endif
     imageTempMat = ofxCv::toCv(imageTemp);
     ofxCv::threshold(imageTempMat, 120, false);
-    
     contourFinder.findContours(imageTemp);
+
+#if 0
+    //  imageTemp.resize(win_width/2, win_height/2);
+    //ofxCv::resize(imageTemp, imageTemp, 2, 2);
+#endif
     
     if (vectorField.isMainThread() && !vectorField.isThreadRunning() && contourFinder.getContours().size() > 0) {
       vectorField.pix.send(imageTempMat);
@@ -144,8 +135,10 @@ void ofApp::update() {
     }
 
     ///////////////////////////////// End If new image ///////////////////////////////////
-    
-    if (boidUpdateBool) {
+#if USE_KINECT
+  }
+#endif
+
       for (int i=0; i<contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
 	if (boidsUpdate[i].isMainThread() && !boidsUpdate[i].isThreadRunning()) {
 	  boidsUpdate[i].boidsUpdate.send(boidUpdate[i]);
@@ -153,121 +146,107 @@ void ofApp::update() {
 	}else cout << "NON StartBoidsThread:" << std::to_string(i) << endl;
 	boidUpdate[i].clear();
       }
-    }else boidUpdate[0].clear();
-    
     boidsReturnInital.boidsReturnInitial.send(boidReturnInitial);
     boidsReturnInital.startThread();
     
+#if USE_KINECT
+    if (kinect.isFrameNew()) {
+#endif
+
     boidReturnInitial.clear();
+    shader.dfvSize = 0;
     for (int x = 0; x<(win_width/div_width); x++) {
         for (int y = 0; y<(win_height/div_height); y++) {
             Boid2d* b = totalBoids[y * win_width/div_width + x];
             bool active = false;
-	    bool insideHole = false;
-	    int index = -1;
+            bool insideHole = false;
+            int index = -1;
             for (int i = 0; i< contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
                 if (contourFinder.getPolyline(i).inside(b->positionInitiale.x,b->positionInitiale.y)){
-		    index = i;
+                    index = i;
                     active = true;
                 }
-            }
-	    for (int i = 0; i< contourFinder.getPolylines().size() && i<nbThreadBoids ; i++) {
-	      if (contourFinder.getHole(i) && contourFinder.getPolyline(i).inside(b->positionInitiale.x,b->positionInitiale.y)){
-		active = false;
-		insideHole = true;
+                if (contourFinder.getHole(i) && contourFinder.getPolyline(i).inside(b->positionInitiale.x,b->positionInitiale.y)){
+                    active = false;
+                    insideHole = true;
                 }
             }
             if (!active){
                 b->active = false;
-		if (insideHole) {
-		  b->color = ofColor::black;
-		} else {
-                b->color=ofColor::black;
-		}
-                b->size = 20; /// attention il ne faut pas que mettre a ici car il faut que le boids soit ˆ sa position initial
+                b->size = min(float (div_width -1.0), float (b->size + 6.5));
                 boidReturnInitial.push_back(b);
-            } else {
-		b->active = true;
-		b->color = ofColor::blueViolet;
-		b->size = max(3.f, float (b->size - 0.25));
-		if (b->size == 3) {
-		  boidUpdate[index].push_back(b);
-		}
-	    }
+            }
+            else {
+                b->active = true;
+                b->size = max(0.f, float (b->size - 6.5));
+                if (b->size == 0.0) {
+                    boidUpdate[index].push_back(b);
+                    //// tableau du shader
+                    ofVec2f vec = ofVec2f((b->position.x/win_width)*2 - 1, (b->position.y/win_height)*2 - 1);
+                    shader.dfv[shader.dfvSize] = ofVec2f((float) vec.x, (float) vec.y);
+                    shader.dfvSize++;
+                    }
+            }
         }
     }
-    
 
-    for (int i=0; i<boidUpdate[0].size(); i++) {
-      Boid2d* b = boidUpdate[0].at(i);
-       
-	//ofVec2f vec =ofVec2f(((float) b->position.x/win_width), ((float) b->position.y/win_height));
-
-      //ofVec2f vec =ofVec2f(((float) b->position.x/win_width)*2-1, ((float) b->position.y/win_width)*2-win_height/win_width);
-        //((b->position)/win_width)*2.0 - ofVec2f(1, win_height/win_width);
-	
-	ofVec2f vec = ofVec2f((b->position.x/win_width)*2 - 1, (b->position.y/win_height)*2 - 1);
-        
-	shader.dfv[i] = ofVec2f((float) vec.x, (float) vec.y);
-
+#if USE_KINECT
     }
-    /*
-    for (int i=0; i<totalBoids.size(); i++) {
-        Boid2d* b = totalBoids.at(i);
-        ofVec2f vec =ofVec2f(((float) b->position.x/win_width)*2-1, ((float) b->position.y/win_width)*2-win_height/win_width);
-        shader.dfv[i]= ofVec2f((float) vec.x, (float) vec.y);
-    }
-    shader.dfvSize = totalBoids.size();
-    */
-    shader.dfvSize = boidUpdate[0].size();
-    //shader.dfv[0]=ofVec2f(1.0,0.0);
-    //shader.dfv[0]=ofVec2f(0.5,0.5);
-    //shader.dfvSize = 1;
+#endif
 
     shader.update();
-
     MaskRGB.setTexture(MaskRGB.getTexture(),0);
     MaskRGB.setTexture(shader.getTexture(),1);
     MaskRGB.update();
     MaskAlpha.setTexture(MaskRGB.getTexture(), 1);
     MaskAlpha.setTexture(shader.getTexture(), 0);
     MaskAlpha.update();
+    bloom << MaskAlpha;
 
 
-#if USE_KINECT
-  }
-#endif
-
-  
-  if (difftime(time(&now), mark) >= temps && explosion == false){
+  if (ofGetElapsedTimef() >= temps && explosion == false){
 	  for (int i = 0; i < boidUpdate[0].size(); i++) {
-		  boidUpdate[0][i]->setValSepa(300, 100);
-		  boidUpdate[0][i]->setValCohe(100, 300);
-		  boidUpdate[0][i]->setValAlig(10, 35);
+		  boidUpdate[0][i]->setValSepa(30, 100);
+		  boidUpdate[0][i]->setValCohe(60, 300);
 		  boidUpdate[0][i]->setMaxForce(3);
 		  boidUpdate[0][i]->setMaxSpeed(4);
 	  }
 	  //cout << "testA" << endl;
-	  time(&mark);
+	  ofResetElapsedTimeCounter();
 	  explosion = true;
   }
-  else if (difftime(time(&now), mark) >= 2 && explosion == true) {
+  else if (ofGetElapsedTimef() >= 1 && explosion == true) {
 	  for (int i = 0; i < boidUpdate[0].size(); i++) {
 		  boidUpdate[0][i]->setValSepa(30, 10);
 		  boidUpdate[0][i]->setValCohe(10, 30);
-		  boidUpdate[0][i]->setValAlig(10, 35);
 		  boidUpdate[0][i]->setMaxForce(2);
 		  boidUpdate[0][i]->setMaxSpeed(2);
 	  }
 	  //cout << "testB" << endl;
-	  time(&mark);
+	  ofResetElapsedTimeCounter();
 	  explosion = false;
-	  temps = rand() % 5 + 5;
+	  temps = ofRandom(5, 11);
   }
+
 
 }
 //--------------------------------------------------------------
 void ofApp::draw() {
+
+  ofPushMatrix();
+
+  ofScale(2.0, 2.0);
+  
+  ofBackground(ofColor::violet);
+  Background.draw(0, 0, win_width, win_height);
+    bloom.draw();
+    ofSetColor(ofColor::white);
+    for (int i = 0; i< totalBoids.size(); i++) {
+        Boid2d* b = totalBoids[i];
+        ofDrawRectangle(b->position.x - b->size/2, b->position.y - b->size/2, b->size,b->size);
+    }
+
+    ofPopMatrix();
 
     if (debug) {
         switch (modeDebug) {
@@ -277,41 +256,26 @@ void ofApp::draw() {
                 }
                 break;
             case 2:{
-                //rip.draw(0,0);
-	      ofBackground(ofColor::orange);
-	      imageTest.draw(0,0);	      
+	      ofBackground(ofColor::violet);
                 shader.draw();
 		for (int i = 0; i < contourFinder.getContours().size(); i++){
 		  contourFinder.getPolyline(i).draw();
-		}
-
+			}
                 }
                 break;
             case 3:{
-                ofImage image = imageTest;
-                image.update();
-                image.draw(0, 0);
+                ofBackground(ofColor::violet);
+                MaskRGB.draw();
                 }
                 break;
             case 4:{
-                ofSetColor(ofColor::green);
-		for (int i = 0; i < contourFinder.getContours().size(); i++){
-		  contourFinder.getPolyline(i).draw();
 		}
-                ofSetColor(ofColor::white);}
                 break;
             case 5:{
-                ofBackground(ofColor::paleVioletRed);
-                /*ofImage image, drawImage;
-                ofxCv::toOf(vectorField.getPixelisationMat(), image);
-                image.update();
-                drawImage = image;
-                drawImage.draw(0, 0);*/ //<<==== code pour la pixelisation
-                MaskRGB.draw();
-                //shader.draw();
-            }
+            	}
             break;
             case 6:{
+		ofBackground(ofColor::violet);
                 ofImage image = imageTest;
                 image.update();
                 image.draw(0, 0);
@@ -327,6 +291,7 @@ void ofApp::draw() {
             }
             break;
             case 7:{
+		ofBackground(ofColor::violet);
                 for (int i = 0; i< totalBoids.size(); i++) {
                     Boid2d* b = totalBoids[i];
                     ofSetColor(b->color);
@@ -335,8 +300,11 @@ void ofApp::draw() {
                 ofSetColor(ofColor::white);
             }
         }
+        gui.draw();
+
+        
     }
-    gui.draw();
+    
   }
   //--------------------------------------------------------------
   void ofApp::keyPressed(int key){
@@ -346,7 +314,6 @@ void ofApp::draw() {
     if (debug) {
       switch (key) {
       case 'b':
-	boidUpdateBool=!boidUpdateBool;
 	break;
       case '1':
 	modeDebug = 1;

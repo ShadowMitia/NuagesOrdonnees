@@ -33,14 +33,6 @@ public:
                                        return 1.0/sqrt(xx*xx+yy*yy);
                                    }
 
-/*
-                         float makePoint(float x,float y,float fx,float fy,float sx,float sy,float t){
-                             float xx=x+sin(t*fx)*sx;
-                             float yy=y+cos(t*fy)*sy;
-                             return 1.0/sqrt(xx*xx+yy*yy);
-                         }
-
-*/
                                    vec4 gu(vec4 a,vec4 b,float f,int r){
                                        if(r == 5) { return vec4(1.0,1.0,1.0,0.0);}
                                        if(r == 0) { return vec4(0.0,1.0,1.0,1.0);}
@@ -54,7 +46,7 @@ public:
                                        vec4 c02=vec4(0.0,0.0,0.0,0.10);
                                        vec4 c03=vec4(0.255,0.412,0.882,0.70);
                                        vec4 c04=vec4(0.529,0.808,0.922,0.90);
-                                       vec4 c05=vec4(0.0,1.0,1.0,0.99);
+                                       vec4 c05=vec4(0.0,1.0,1.0,1.0);
                                        vec4 c06=vec4(1.0,1.0,1.0,1.00);
                                        return (f<c02.w)?gu(c01,c02,f,0):
                                        (f<c03.w)?gu(c02,c03,f,0):
@@ -64,20 +56,18 @@ public:
                                    }
                                    void main( void ) {
 				     vec2 p = (gl_FragCoord.xy/resolution.x)*2.0-vec2(1.0, resolution.y/resolution.x);
-				     //vec2 p=(gl_FragCoord.xy/resolution.x)*2.0-vec2(1.0,resolution.y/resolution.x);
-				     //vec2 p = (gl_FragCoord/resolution)-vec2(0.5,1.0);
-					//vec2 p = gl_FragCoord;
+
 				     //p = p*2;
 
                                        float x=p.x;
-                                       float y=p.y*1.5;
+                                       float y=p.y*16.0/9.0;
                                        
                                        float a = 0.0;
                                        for (int i=0; i<tabSize; i++) {
                                            a=a+makePoint(x,y,-tab[i].x,-tab[i].y);
                                        }
 					//a=makePoint(x,y,0.5, 0.0);
-                                       vec4 a1=grad(a/7000.0);
+                                       vec4 a1=grad(a/2300.0);// ici si on voix rien
                                        gl_FragColor = vec4(a1);
                                    }
                                 );
@@ -193,7 +183,7 @@ public:
                                             }
                                        else{
                                                //image.w = min(1.0,image.w + 1.00);// <<< ici tim 0.0038
-                                            image.rgba = vec4(image.r + 0.0027,0.0,0.0,1.0);
+                                            image.rgba = vec4(image.r + 0.0038,0.0,0.0,1.0); // min 0.0027
                                                
                                            }
                                        gl_FragColor = vec4(image);

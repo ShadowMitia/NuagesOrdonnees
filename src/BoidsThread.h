@@ -97,7 +97,8 @@ private:
         std::vector<Boid2d*> boids;
         boidsReturnInitial.receive(boids);
         for (int i=0; i<boids.size(); i++) {
-            boids[i]->returnInitial();
+            //boids[i]->returnInitial();
+            boids[i]->position = boids[i]->positionInitiale;
         }
     };
 };
