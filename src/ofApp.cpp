@@ -1,6 +1,7 @@
 #include "ofApp.h"
 //--------------------------------------------------------------
 void ofApp::setup() {
+
   Background.load("Background2.jpg");
   Background.resize(win_width, win_height);
 
@@ -13,7 +14,9 @@ void ofApp::setup() {
   shader.allocate(win_width, win_height, GL_RGBA);    
   MaskRGB.allocate(win_width, win_height, GL_RGBA);
   MaskAlpha.allocate(win_width, win_height, GL_RGBA);
+
   bloom.allocate(win_width, win_height, GL_RGBA);
+
 #if USE_KINECT
   // Kinect stuff
   bool opened = kinect.open(0);
@@ -110,10 +113,10 @@ void ofApp::update() {
     imageTemp.setFromPixels(kinect.getDepthPixels());
     imageTemp.setImageType(OF_IMAGE_GRAYSCALE);
     imageTemp.update();
+    imageTemp.resize(win_width, win_height);
+    imageTemp.update();
     imageTempMat = ofxCv::toCv(imageTemp);
-    //    imageTemp.resize(win_width/2, win_height/2);
-    //    imageTemp.update();
-    //ofxCv::resize(imageTemp, imageTemp, (win_width/win_height)/2,  (win_width/win_height)/2);
+  
 #else
     ofxCv::copyGray(imageTest, imageTemp);
     //imageTemp = imageTest;
@@ -203,11 +206,12 @@ void ofApp::update() {
     MaskAlpha.update();
     bloom << MaskAlpha;
 
-
-  if (ofGetElapsedTimef() >= temps && explosion == false){
+  
+  if (difftime(time(&now), mark) >= temps && explosion == false){
 	  for (int i = 0; i < boidUpdate[0].size(); i++) {
 		  boidUpdate[0][i]->setValSepa(30, 100);
 		  boidUpdate[0][i]->setValCohe(60, 300);
+		  boidUpdate[0][i]->setValAlig(10, 35);
 		  boidUpdate[0][i]->setMaxForce(3);
 		  boidUpdate[0][i]->setMaxSpeed(4);
 	  }
@@ -215,7 +219,8 @@ void ofApp::update() {
 	  ofResetElapsedTimeCounter();
 	  explosion = true;
   }
-  else if (ofGetElapsedTimef() >= 1 && explosion == true) {
+  else if (difftime(time(&now), mark) >= 1 && explosion == true) {
+
 	  for (int i = 0; i < boidUpdate[0].size(); i++) {
 		  boidUpdate[0][i]->setValSepa(30, 10);
 		  boidUpdate[0][i]->setValCohe(10, 30);
@@ -233,20 +238,16 @@ void ofApp::update() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-  ofPushMatrix();
 
-  ofScale(2.0, 2.0);
-  
-  ofBackground(ofColor::violet);
-  Background.draw(0, 0, win_width, win_height);
-    bloom.draw();
+
+    ofBackground(ofColor::violet);
+    Background.draw(0, 0,win_width*n,win_height*n);
+    MaskAlpha.draw(0,0,win_width*n,win_height*n);
     ofSetColor(ofColor::white);
     for (int i = 0; i< totalBoids.size(); i++) {
         Boid2d* b = totalBoids[i];
-        ofDrawRectangle(b->position.x - b->size/2, b->position.y - b->size/2, b->size,b->size);
+        ofDrawRectangle((b->position.x - b->size/2)*n,(b->position.y - b->size/2)*n, (b->size)*n ,(b->size)*n);
     }
-
-    ofPopMatrix();
 
     if (debug) {
         switch (modeDebug) {

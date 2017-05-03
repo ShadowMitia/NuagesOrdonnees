@@ -78,6 +78,7 @@ public:
 
   ofxMaskRGB MaskRGB;
   ofxMaskAlpha MaskAlpha;
+
   ofxBloom bloom;
 
   ofTexture black;
@@ -90,11 +91,12 @@ public:
   ofxFloatSlider maxArea;
   ofxFloatSlider threshold;
 
-  bool explosion;
-  float temps;
 
   ofImage Background;
 
-  ofFbo fbo;
-
+    time_t mark;
+  time_t now;
+  bool explosion;
+int temps;
+  
 };
