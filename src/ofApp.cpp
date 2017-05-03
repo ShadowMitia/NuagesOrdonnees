@@ -241,12 +241,12 @@ void ofApp::draw() {
 
 
     ofBackground(ofColor::violet);
-    Background.draw(0, 0,win_width*n,win_height*n);
-    MaskAlpha.draw(0,0,win_width*n,win_height*n);
+    Background.draw(0, 0,win_width,win_height);
+    MaskAlpha.draw(0,0,win_width,win_height);
     ofSetColor(ofColor::white);
     for (int i = 0; i< totalBoids.size(); i++) {
         Boid2d* b = totalBoids[i];
-        ofDrawRectangle((b->position.x - b->size/2)*n,(b->position.y - b->size/2)*n, (b->size)*n ,(b->size)*n);
+        ofDrawRectangle((b->position.x - b->size/2),(b->position.y - b->size/2), (b->size),(b->size));
     }
 
     if (debug) {
