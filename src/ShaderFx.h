@@ -43,11 +43,11 @@ public:
                                    }
                                    vec4 grad(float f){
                                        vec4 c01=vec4(1.0,1.0,1.0,0.00);
-                                       vec4 c02=vec4(0.0,0.0,0.0,0.10);
-                                       vec4 c03=vec4(0.255,0.412,0.882,0.70);
-                                       vec4 c04=vec4(0.529,0.808,0.922,0.90);
+                                       vec4 c02=vec4(0.0,0.0,0.0,0.30);
+                                       vec4 c03=vec4(0.255,0.412,0.882,0.80);
+                                       vec4 c04=vec4(0.529,0.808,0.922,0.95);
                                        vec4 c05=vec4(0.0,1.0,1.0,1.0);
-                                       vec4 c06=vec4(1.0,1.0,1.0,1.00);
+                                       vec4 c06=vec4(1.0,1.0,1.0,3.00);
                                        return (f<c02.w)?gu(c01,c02,f,0):
                                        (f<c03.w)?gu(c02,c03,f,0):
                                        (f<c04.w)?gu(c03,c04,f,3):
@@ -68,7 +68,7 @@ public:
                                        }
 					//a=makePoint(x,y,0.5, 0.0);
 
-                                       vec4 a1=grad(a/2500.0);// ici si on voix rien
+                                       vec4 a1=grad(a/2000.0);// ici si on voix rien
                                        gl_FragColor = vec4(a1);
                                    }
                                 );

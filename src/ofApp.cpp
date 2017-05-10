@@ -176,12 +176,12 @@ void ofApp::update() {
             }
             if (!active){
                 b->active = false;
-                b->size = min(float (div_width -1.0), float (b->size + 6.5));
+                b->size = min(float (div_width - 6.0), float (b->size + 2));
                 boidReturnInitial.push_back(b);
             }
             else {
                 b->active = true;
-                b->size = max(0.f, float (b->size - 6.5));
+                b->size = max(0.f, float (b->size - 2));
                 if (b->size == 0.0) {
                     boidUpdate[index].push_back(b);
                     //// tableau du shader

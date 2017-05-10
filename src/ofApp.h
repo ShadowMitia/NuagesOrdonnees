@@ -94,9 +94,9 @@ public:
 
   ofImage Background;
 
-    time_t mark;
+  time_t mark;
   time_t now;
   bool explosion;
-int temps;
+  int temps;
   
 };
