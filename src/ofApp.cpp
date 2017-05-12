@@ -207,7 +207,7 @@ void ofApp::update() {
     bloom << MaskAlpha;
 
   
-  if (difftime(time(&now), mark) >= temps && explosion == false){
+  if (ofGetElapsedTimef() >= temps && explosion == false){
 	  for (int i = 0; i < boidUpdate[0].size(); i++) {
 		  boidUpdate[0][i]->setValSepa(30, 100);
 		  boidUpdate[0][i]->setValCohe(60, 300);
@@ -219,7 +219,7 @@ void ofApp::update() {
 	  ofResetElapsedTimeCounter();
 	  explosion = true;
   }
-  else if (difftime(time(&now), mark) >= 1 && explosion == true) {
+  else if (ofGetElapsedTimef() >= 1 && explosion == true) {
 
 	  for (int i = 0; i < boidUpdate[0].size(); i++) {
 		  boidUpdate[0][i]->setValSepa(30, 10);
