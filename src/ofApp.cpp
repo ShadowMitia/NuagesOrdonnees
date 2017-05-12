@@ -88,8 +88,8 @@ void ofApp::setup() {
 
 
   //explosion
-  explosion = false;
-  temps = ofRandom(5, 11);
+  //explosion = false;
+  //temps = ofRandom(5, 11);
 
 }
 //--------------------------------------------------------------
@@ -207,7 +207,7 @@ void ofApp::update() {
     bloom << MaskAlpha;
 
   
-  if (ofGetElapsedTimef() >= temps && explosion == false){
+  /*if (ofGetElapsedTimef() >= temps && explosion == false){
 	  for (int i = 0; i < boidUpdate[0].size(); i++) {
 		  boidUpdate[0][i]->setValSepa(30, 100);
 		  boidUpdate[0][i]->setValCohe(60, 300);
@@ -231,8 +231,7 @@ void ofApp::update() {
 	  ofResetElapsedTimeCounter();
 	  explosion = false;
 	  temps = ofRandom(5, 11);
-  }
-
+  }*/
 
 }
 //--------------------------------------------------------------
