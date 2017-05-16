@@ -10,7 +10,8 @@ void ofApp::setup() {
   gui.setup();
   gui.add(minArea.setup("minArea", 0, 1, 500));
   gui.add(maxArea.setup("maxArea", 0, 1, 1000));
-  gui.add(threshold.setup("threshold", 0, 0, <<<<<<< HEAD
+  gui.add(threshold.setup("threshold", 0, 0, 100));
+
 
 
   ///////////////////shader////////////////////////////////
@@ -190,7 +191,7 @@ void ofApp::update() {
                 if (b->size == 0.0) {
                     boidUpdate[index].push_back(b);
                     //// tableau du shader
-                    ofVec2f vec = ofVec2f((b->position.x/win_width), (b->position.y/win_height));
+                    ofVec2f vec = ofVec2f((b->position.x/win_width)*2-1, (b->position.y/win_height)*2-1);
                     shader.dfv[shader.dfvSize] = ofVec2f((float) vec.x, (float) vec.y);
                     shader.dfvSize++;
                     }
@@ -296,7 +297,7 @@ void ofApp::draw() {
             }
             break;
             case 7:{
-		ofBackground(ofColor::violet);
+		ofBackground(ofColor::black);
                 for (int i = 0; i< totalBoids.size(); i++) {
                     Boid2d* b = totalBoids[i];
                     ofSetColor(b->color);
