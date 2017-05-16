@@ -1,0 +1,8 @@
+<group>
+	<minArea>98.305</minArea>
+	<maxArea>405.595</maxArea>
+	<threshold>0</threshold>
+<group/>
+<minDistance>802.5</minDistance>
+	<maxDistance>3635</maxDistance>
+</group>
