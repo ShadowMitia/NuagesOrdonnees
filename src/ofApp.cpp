@@ -10,6 +10,7 @@ void ofApp::setup() {
   gui.add(minArea.setup("minArea", 0, 1, 500));
   gui.add(maxArea.setup("maxArea", 0, 1, 1000));
   gui.add(threshold.setup("threshold", 0, 0, 100));
+
   ///////////////////shader////////////////////////////////
   shader.allocate(win_width, win_height, GL_RGBA);    
   MaskRGB.allocate(win_width, win_height, GL_RGBA);
@@ -90,6 +91,8 @@ void ofApp::setup() {
   //explosion
   //explosion = false;
   //temps = ofRandom(5, 11);
+
+  gui.loadFromFile("settings.xml");
 
 }
 //--------------------------------------------------------------
