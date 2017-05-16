@@ -1,3 +1,4 @@
+
 #include "ofApp.h"
 //--------------------------------------------------------------
 void ofApp::setup() {
@@ -10,6 +11,7 @@ void ofApp::setup() {
   gui.add(minArea.setup("minArea", 0, 1, 500));
   gui.add(maxArea.setup("maxArea", 0, 1, 1000));
   gui.add(threshold.setup("threshold", 0, 0, 100));
+  gui.loadFromFile("settings.xml");
   ///////////////////shader////////////////////////////////
   shader.allocate(win_width, win_height, GL_RGBA);    
   MaskRGB.allocate(win_width, win_height, GL_RGBA);
@@ -27,7 +29,7 @@ void ofApp::setup() {
     gui.add(maxDistance.setup("maxDistance", 6000, 500, 6000));
     
 #else
-  ///////////////////////////CamŽra///////////////////////
+  ///////////////////////////Camå±a///////////////////////
   imageTest.load("grayGrad8.jpg");
   //imageTest.load("666.png");
 
@@ -185,7 +187,7 @@ void ofApp::update() {
                 if (b->size == 0.0) {
                     boidUpdate[index].push_back(b);
                     //// tableau du shader
-                    ofVec2f vec = ofVec2f((b->position.x/win_width)*2 - 1, (b->position.y/win_height)*2 - 1);
+                    ofVec2f vec = ofVec2f((b->position.x/win_width), (b->position.y/win_height));
                     shader.dfv[shader.dfvSize] = ofVec2f((float) vec.x, (float) vec.y);
                     shader.dfvSize++;
                     }

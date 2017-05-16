@@ -73,7 +73,7 @@ public:
     };
 
 	bool explosion = false;
-	float temps = ofRandom(5, 11);
+	float temps = ofRandom(4, 7);
 
 private:
         ofMutex dataMutex;
@@ -94,13 +94,13 @@ private:
             boids[i]->update(&boids,gradientVectorField_Ptr);
 		if (explosion) {
 			boids[i]->setValSepa(30, 100);
-			boids[i]->setValCohe(60, 300);
+			boids[i]->setValCohe(0, 100);
 			boids[i]->setMaxForce(3);
 			boids[i]->setMaxSpeed(4);
 		}
 		else {
-			boids[i]->setValSepa(30, (boids[i]->distSeparationGroup == 10) ? boids[i]->distSeparationGroup - 2 : boids[i]->distSeparationGroup);
-			boids[i]->setValCohe((boids[i]->cohesionGroup == 10) ? boids[i]->cohesionGroup : boids[i]->cohesionGroup-0.5, (boids[i]->distCohesionGroup == 30) ? boids[i]->distCohesionGroup-10 : boids[i]->distCohesionGroup);
+			boids[i]->setValSepa(30, (boids[i]->distSeparationGroup == 10) ? boids[i]->distSeparationGroup - 5 : boids[i]->distSeparationGroup);
+			boids[i]->setValCohe((boids[i]->cohesionGroup == 10) ? boids[i]->cohesionGroup : boids[i]->cohesionGroup+0.5, (boids[i]->distCohesionGroup == 30) ? boids[i]->distCohesionGroup-5 : boids[i]->distCohesionGroup);
 			boids[i]->setMaxForce((boids[i]->maxForce == 2) ? boids[i]->maxForce-0.05 : boids[i]->maxForce);
 			boids[i]->setMaxSpeed((boids[i]->maxSpeed == 2) ? boids[i]->maxSpeed-0.05 : boids[i]->maxSpeed);
 		}
